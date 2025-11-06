@@ -262,17 +262,17 @@ public class WaterHardEffect : CombinationEffect
         // 替换材质
         ReplaceWaterMaterial();
         
-        // 设置waterplane的localPosition y为17.5（固定值）
+        // 设置waterplane的localPosition y为-0.8（固定值）
         if (waterRenderer != null)
         {
             Vector3 localPos = waterRenderer.transform.localPosition;
-            localPos.y = 17.5f;
+            localPos.y = -0.8f;
             waterRenderer.transform.localPosition = localPos;
-            Debug.Log($"已设置waterplane的localPosition y为17.5");
+            //Debug.Log($"已设置waterplane的localPosition y为-0.8");
         }
         
         // 保持原有的transform位置设置
-        this.transform.localPosition = new Vector3(0.000000086511f, 0.58f, 0);
+        //this.transform.localPosition = new Vector3(0.000000086511f, 0.58f, 0);
 
         Debug.Log($"✅ {successMessage}");
     }
