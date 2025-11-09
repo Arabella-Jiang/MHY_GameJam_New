@@ -1,32 +1,32 @@
 using UnityEngine;
-using System.Collections;
 
 /// <summary>
 /// 石头透明效果（大块石头 + Transparent属性 = 可以映射星光，获得"星点"组件）
+/// 效果：改变材质为透明/反射材质，并在物体上生成星星prefab（可拾取）
 /// </summary>
 public class StoneTransparentEffect : CombinationEffect
 {
-    [Header("透明设置")]
-    public Material transparentMaterial;        // 透明材质
-    public float transparency = 0.5f;           // 透明度（0-1）
+    [Header("透明/反射材质")]
+    public Material transparentMaterial;        // 透明/反射材质（如果为null，会创建默认透明材质）
+    public float transparency = 0.5f;           // 透明度（0-1，仅在创建默认材质时使用）
     
-    [Header("星光反射")]
-    public Light starLight;                     // 星光光源
-    public GameObject starPointPrefab;          // "星点"组件Prefab
-    public Transform starPointSpawnPoint;       // "星点"生成位置
-    
-    [Header("视觉效果")]
-    public ParticleSystem reflectionEffect;     // 反射特效
+    [Header("星星Prefab")]
+    public GameObject starPrefab;               // 星星Prefab（"gold star.prefab"）
+    public float starSpawnHeight = 1f;          // 星星生成高度（相对于物体表面）
 
     private bool effectTriggered = false;
-    private bool starPointGenerated = false;
+    private GameObject spawnedStar = null;      // 已生成的星星实例
 
     public override void TriggerEffect()
     {
         if (effectTriggered) return;
 
         InteractableObject stone = GetComponent<InteractableObject>();
-        if (stone == null) return;
+        if (stone == null)
+        {
+            Debug.LogError("StoneTransparentEffect: 未找到InteractableObject组件！");
+            return;
+        }
 
         // 检查是否拥有Transparent属性
         if (!stone.currentProperties.Contains(ObjectProperty.Transparent))
@@ -44,100 +44,83 @@ public class StoneTransparentEffect : CombinationEffect
             if (transparentMaterial != null)
             {
                 renderer.material = transparentMaterial;
+                Debug.Log("✅ 石头材质已更改为透明/反射材质！");
             }
-            else
-            {
-                // 创建一个透明/反射材质
-                Material newMat = new Material(Shader.Find("Standard"));
-                newMat.SetFloat("_Mode", 3); // Transparent mode
-                newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                newMat.SetInt("_ZWrite", 0);
-                newMat.DisableKeyword("_ALPHATEST_ON");
-                newMat.EnableKeyword("_ALPHABLEND_ON");
-                newMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                newMat.renderQueue = 3000;
-                newMat.SetFloat("_Metallic", 0.8f);
-                newMat.SetFloat("_Glossiness", 0.9f);
-                Color color = new Color(0.9f, 0.9f, 1f, transparency);
-                newMat.color = color;
-                renderer.material = newMat;
-            }
-        }
-
-        Debug.Log("✅ 石头变得透明，可以映射星光了！");
-
-        // 开始检测星光映射
-        StartCoroutine(CheckStarLightReflection());
-    }
-
-    /// <summary>
-    /// 检测星光映射
-    /// </summary>
-    private System.Collections.IEnumerator CheckStarLightReflection()
-    {
-        while (!starPointGenerated)
-        {
-            yield return new WaitForSeconds(1f); // 每秒检查一次
-            
-            // 如果效果已触发且还没有生成"星点"，生成它
-            if (effectTriggered && !starPointGenerated)
-            {
-                GenerateStarPoint();
-                break;
-            }
-        }
-    }
-
-    /// <summary>
-    /// 生成"星点"组件
-    /// </summary>
-    private void GenerateStarPoint()
-    {
-        if (starPointGenerated) return;
-
-        starPointGenerated = true;
-
-        // 播放反射特效
-        if (reflectionEffect != null)
-        {
-            reflectionEffect.Play();
-        }
-
-        // 生成"星点"组件
-        if (starPointPrefab != null)
-        {
-            Vector3 spawnPos = starPointSpawnPoint != null ? starPointSpawnPoint.position : transform.position + Vector3.up * 1f;
-            GameObject starPoint = Instantiate(starPointPrefab, spawnPos, Quaternion.identity);
-            
-            // 确保有StarPointCollector组件
-            StarPointCollector collector = starPoint.GetComponent<StarPointCollector>();
-            if (collector == null)
-            {
-                collector = starPoint.AddComponent<StarPointCollector>();
-            }
-            
-            // 确保有InteractableObject组件
-            InteractableObject io = starPoint.GetComponent<InteractableObject>();
-            if (io == null)
-            {
-                io = starPoint.AddComponent<InteractableObject>();
-            }
-            io.canBePickedUp = true;
+           
         }
         else
         {
-            Debug.LogWarning("StoneTransparentEffect: 未指定\"星点\"组件Prefab！");
+            Debug.LogWarning("StoneTransparentEffect: 未找到Renderer组件，无法更改材质！");
         }
 
-        // 通知Level3Manager
-        Level3Manager level3 = FindObjectOfType<Level3Manager>();
-        if (level3 != null)
+        // 生成星星prefab
+        SpawnStar();
+
+        Debug.Log("✅ 石头变得透明，可以映射星光，星星已出现在石头上！");
+    }
+
+    /// <summary>
+    /// 在石头上生成星星prefab
+    /// </summary>
+    private void SpawnStar()
+    {
+        if (starPrefab == null)
         {
-            level3.OnStarPointObtained();
+            Debug.LogError("StoneTransparentEffect: 未指定星星Prefab！请在Inspector中指定\"gold star.prefab\"");
+            return;
         }
 
-        Debug.Log("✅ 石头映射了星光，获得了\"星点\"组件！");
+        // 如果已经生成过星星，不再重复生成
+        if (spawnedStar != null)
+        {
+            Debug.LogWarning("StoneTransparentEffect: 星星已经生成过了！");
+            return;
+        }
+
+        // 计算生成位置（物体表面上方）
+        Vector3 spawnPosition = CalculateStarSpawnPosition();
+
+        // 实例化星星prefab
+        spawnedStar = Instantiate(starPrefab, spawnPosition, Quaternion.identity);
+
+        // 确保星星有StarPointCollector组件
+        StarPointCollector collector = spawnedStar.GetComponent<StarPointCollector>();
+        if (collector == null)
+        {
+            collector = spawnedStar.AddComponent<StarPointCollector>();
+            Debug.Log("✅ 已为星星添加StarPointCollector组件");
+        }
+
+        // 确保星星有InteractableObject组件且可被拾取
+        InteractableObject io = spawnedStar.GetComponent<InteractableObject>();
+        if (io == null)
+        {
+            io = spawnedStar.AddComponent<InteractableObject>();
+        }
+        io.canBePickedUp = true;
+
+        Debug.Log($"✅ 星星已生成在石头上！位置: {spawnPosition}");
+    }
+
+    /// <summary>
+    /// 计算星星生成位置（物体表面上方）
+    /// </summary>
+    private Vector3 CalculateStarSpawnPosition()
+    {
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            // 使用Renderer的bounds计算位置
+            Bounds bounds = renderer.bounds;
+            Vector3 center = bounds.center;
+            Vector3 top = new Vector3(center.x, bounds.max.y, center.z);
+            return top + Vector3.up * starSpawnHeight;
+        }
+        else
+        {
+            // 如果没有Renderer，使用物体位置上方
+            return transform.position + Vector3.up * starSpawnHeight;
+        }
     }
 }
 

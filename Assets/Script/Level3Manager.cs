@@ -11,6 +11,9 @@ public class Level3Manager : LevelManager
     public InteractableObject deadPlant;        // 枯死的植物
     public InteractableObject iceSurface;       // 冰面（支持两种触发方式：1.冰锥交互 2.玩家变重）
     public InteractableObject largeStone;       // 大块石头（用于反射星光）
+    
+    [Header("石碑文字效果")]
+    public StarTabletEffect tabletTextEffect; // 石碑文字点亮效果组件（合并了文字点亮和充能效果）
 
     [Header("收集状态")]
     public bool hasLife = false;                // 是否获得"生"组件
@@ -148,6 +151,16 @@ public class Level3Manager : LevelManager
         lifeCharged = true;
         ShowMessage("✅ \"生\"组件已充能到石碑！");
         
+        // 点亮"生"文字部分
+        if (tabletTextEffect != null)
+        {
+            tabletTextEffect.LightUpLifeText();
+        }
+        else
+        {
+            Debug.LogWarning("Level3Manager: tabletTextEffect未指定，无法点亮文字");
+        }
+        
         CheckAllComponentsCharged();
     }
 
@@ -164,6 +177,16 @@ public class Level3Manager : LevelManager
         
         starPointCharged = true;
         ShowMessage("✅ \"星点\"组件已充能到石碑！");
+        
+        // 点亮"星点"文字部分
+        if (tabletTextEffect != null)
+        {
+            tabletTextEffect.LightUpStarPointText();
+        }
+        else
+        {
+            Debug.LogWarning("Level3Manager: tabletTextEffect未指定，无法点亮文字");
+        }
         
         CheckAllComponentsCharged();
     }
@@ -234,7 +257,7 @@ public class Level3Manager : LevelManager
             return;
         }
         
-        // 处理玩家对着石碑交互（短按E），检查是否手持组件并充能
+        // 处理玩家对着石碑交互（按Q键），检查是否手持组件并充能
         if (target == stoneTablet)
         {
             // 如果手持物品，尝试充能"生"或"星点"组件
@@ -244,7 +267,8 @@ public class Level3Manager : LevelManager
             }
             else
             {
-                ShowMessage("需要手持组件才能充能石碑");
+                // 如果没有手持物品，提示玩家需要手持组件
+                ShowMessage("需要手持组件才能充能石碑。请先拾取" + (hasLife ? "" : "\"生\"") + (hasStarPoint ? "" : (hasLife ? "或\"星点\"" : "或\"星点\"")) + "组件。");
             }
         }
     }
@@ -384,26 +408,8 @@ public class Level3Manager : LevelManager
             bool inY = Mathf.Abs(playerPos.y - iceBounds.center.y) <= 5f;
             
             playerOnIce = inXZ && inY;
-            
-            // 添加调试日志（每60帧输出一次）
-            if (Time.frameCount % 60 == 0)
-            {
-                Debug.Log($"[CheckHeavyPlayerOnIce] 玩家位置: {playerPos}, 冰面bounds: {iceBounds}, inXZ: {inXZ}, inY: {inY}, playerOnIce: {playerOnIce}");
-            }
         }
-        else
-        {
-            // 备用方法：使用距离检测（只检查XZ平面距离，忽略Y轴）
-            Vector3 playerPos = player.transform.position;
-            Vector3 icePos = iceSurface.transform.position;
-            Vector2 playerXZ = new Vector2(playerPos.x, playerPos.z);
-            Vector2 iceXZ = new Vector2(icePos.x, icePos.z);
-            float distanceXZ = Vector2.Distance(playerXZ, iceXZ);
-            float heightDiff = Mathf.Abs(playerPos.y - icePos.y);
-            
-            playerOnIce = distanceXZ <= 20f && heightDiff <= 5f;
-        }
-        
+
         if (!playerOnIce) return;
 
         Debug.Log("✅ 玩家变重且站在冰面上，触发冰面转换效果！");
@@ -471,15 +477,6 @@ public class Level3Manager : LevelManager
             {
                 Debug.LogError("[TriggerIceSurfaceTransformation] ❌ deadPlant is null，无法触发植物灌溉！请检查Level3Manager的deadPlant引用");
             }
-        }
-        else
-        {
-            Debug.LogError($"[TriggerIceSurfaceTransformation] ❌ 冰面 {targetIceSurface.name} 上没有IceSurfaceEffect组件！");
-            Debug.LogError($"[TriggerIceSurfaceTransformation] 请确保冰面对象上已添加IceSurfaceEffect组件");
-            
-            // 列出所有组件，帮助调试
-            Component[] allComponents = targetIceSurface.GetComponents<Component>();
-            Debug.LogError($"[TriggerIceSurfaceTransformation] 目标对象上的所有组件: {string.Join(", ", System.Array.ConvertAll(allComponents, c => c.GetType().Name))}");
         }
     }
 

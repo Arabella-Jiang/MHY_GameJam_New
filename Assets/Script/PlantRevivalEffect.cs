@@ -17,6 +17,9 @@ public class PlantRevivalEffect : CombinationEffect
     [Header("视觉效果")]
     public ParticleSystem revivalEffect;        // 复活特效
     public Light plantLight;                    // 植物光源（复活后点亮）
+    
+    [Header("生组件花")]
+    public GameObject lifeFlower;               // "生"组件花（植物复活后激活，带LifeCollector组件）
 
     private bool effectTriggered = false;
     private bool isRevived = false;
@@ -31,6 +34,12 @@ public class PlantRevivalEffect : CombinationEffect
         if (treeLive != null)
         {
             treeLive.SetActive(false);
+        }
+        
+        // 确保"生"组件花初始状态为未激活
+        if (lifeFlower != null)
+        {
+            lifeFlower.SetActive(false);
         }
     }
 
@@ -109,14 +118,37 @@ public class PlantRevivalEffect : CombinationEffect
             treeLive.SetActive(true);
         }
 
-        // 通知Level3Manager
-        Level3Manager level3 = FindObjectOfType<Level3Manager>();
-        if (level3 != null)
+        // 激活"生"组件花
+        if (lifeFlower != null)
         {
-            level3.OnLifeObtained();
+            lifeFlower.SetActive(true);
+            Debug.Log("✅ \"生\"组件花已激活！");
+            
+            // 确保花有LifeCollector组件
+            LifeCollector collector = lifeFlower.GetComponent<LifeCollector>();
+            if (collector == null)
+            {
+                collector = lifeFlower.AddComponent<LifeCollector>();
+                Debug.Log("✅ 已为\"生\"组件花添加LifeCollector组件");
+            }
+            
+            // 确保花有InteractableObject组件且可被拾取
+            InteractableObject io = lifeFlower.GetComponent<InteractableObject>();
+            if (io == null)
+            {
+                io = lifeFlower.AddComponent<InteractableObject>();
+            }
+            io.canBePickedUp = true;
+        }
+        else
+        {
+            Debug.LogWarning("PlantRevivalEffect: lifeFlower未指定，无法生成\"生\"组件");
         }
 
-        Debug.Log("✅ 植物复苏了！获得了\"生\"组件。");
+        // 注意：不在这里通知Level3Manager，而是在玩家拾取花时才通知
+        // 这样玩家必须先拾取花才能获得"生"组件
+
+        Debug.Log("✅ 植物复苏了！\"生\"组件花已出现。");
     }
 }
 

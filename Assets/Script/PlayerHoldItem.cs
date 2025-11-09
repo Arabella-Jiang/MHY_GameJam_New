@@ -54,6 +54,11 @@ public class PlayerHoldItem : MonoBehaviour
         {
             item.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
         }
+        // 检查是否是星星（有StarPointCollector组件），如果是则旋转x轴-90度使其竖着
+        else if (item.GetComponent<StarPointCollector>() != null)
+        {
+            item.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+        }
         else
         {
             item.transform.localRotation = Quaternion.identity;
