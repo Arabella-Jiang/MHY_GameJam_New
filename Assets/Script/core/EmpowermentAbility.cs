@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 //相当于Inventory
 public class EmpowermentAbility : MonoBehaviour
 {
     [Header("特性背包")]
     public ObjectProperty[] propertySlots = new ObjectProperty[2];
+
+    // 特性变化事件 - 当背包中的特性发生变化时触发
+    public event Action OnPropertyChanged;
 
     void Start()
     {
@@ -60,6 +64,9 @@ public class EmpowermentAbility : MonoBehaviour
         }
 
         LogCurrentInventory();
+        
+        // 触发特性变化事件，通知UI更新
+        OnPropertyChanged?.Invoke();
     }
 
     /// <summary>
