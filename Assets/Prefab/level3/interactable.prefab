@@ -127,6 +127,7 @@ GameObject:
   - component: {fileID: 924769101453050179}
   - component: {fileID: 5372635133575919154}
   - component: {fileID: 1222663548904566833}
+  - component: {fileID: 7697707986849218294}
   m_Layer: 6
   m_Name: TreeDead
   m_TagString: Untagged
@@ -190,6 +191,24 @@ MonoBehaviour:
   understandableProperties: 
   propertyCombinations: []
   canBePickedUp: 0
+--- !u!114 &7697707986849218294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549052356326431737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f87a797ff115e4d1aa861e17112e5a1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deadTree: {fileID: 549052356326431737}
+  treeLive: {fileID: 4285708806588619513}
+  waterAnimation: {fileID: 0}
+  waterAnimationName: WaterPlant
+  revivalEffect: {fileID: 0}
+  plantLight: {fileID: 0}
 --- !u!1 &771029017488777963
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +429,7 @@ Transform:
   m_GameObject: {fileID: 1523592864214446769}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00959806, y: -0.7675181, z: -0.2819913, w: 0.5755907}
-  m_LocalPosition: {x: -78.12369, y: 123.62896, z: 200.92043}
+  m_LocalPosition: {x: -78, y: 124, z: 201.1}
   m_LocalScale: {x: 67.12265, y: 67.12265, z: 67.12265}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -444,7 +463,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bb370d1af76889145a8d0b4cb1ebc6d9, type: 2}
+  - {fileID: 2100000, guid: 59e5dc4df4335bf4399c65c0894d9af8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1091,8 +1110,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43a473df0935e42f68a6f167f92a440e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentProperties: 010000000d0000000e000000
-  understandableProperties: 010000000d0000000e000000
+  currentProperties: 0e0000000d000000
+  understandableProperties: 0d0000000e000000
   propertyCombinations: []
   canBePickedUp: 1
 --- !u!1 &4974532078197205767
@@ -1347,6 +1366,8 @@ GameObject:
   - component: {fileID: 3097713216024738098}
   - component: {fileID: 7702132005306836002}
   - component: {fileID: 939245769290957303}
+  - component: {fileID: 5170848184838738734}
+  - component: {fileID: 4630327880413019686}
   m_Layer: 6
   m_Name: Lake
   m_TagString: Untagged
@@ -1435,6 +1456,46 @@ MonoBehaviour:
   understandableProperties: 
   propertyCombinations: []
   canBePickedUp: 0
+--- !u!65 &5170848184838738734
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6968432913778555920}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10.000001, y: 2.220446e-16, z: 10}
+  m_Center: {x: -0.0000019073486, y: 0, z: 0.0000038146973}
+--- !u!114 &4630327880413019686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6968432913778555920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 375efe2b7635f4339958d59808f6d049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetMaterial: {fileID: 2100000, guid: ba4ba0607edb5754bb79b829283324a4, type: 2}
+  iceRenderer: {fileID: 0}
+  waterCollider: {fileID: 0}
+  iceAnimation: {fileID: 0}
+  animationName: IceTransform
+  transformEffect: {fileID: 0}
+  transformSound: {fileID: 0}
 --- !u!1 &7121685763148334223
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,6 +1817,7 @@ GameObject:
   - component: {fileID: 3065413081681060149}
   - component: {fileID: 1994869053743449505}
   - component: {fileID: 4017678959213380052}
+  - component: {fileID: 1334796872305958072}
   m_Layer: 6
   m_Name: default
   m_TagString: Untagged
@@ -1850,3 +1912,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2432090755550338912, guid: c3973912d483d4a74b7027924742fed0, type: 3}
+--- !u!114 &1334796872305958072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9001438736718973764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43a473df0935e42f68a6f167f92a440e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentProperties: 
+  understandableProperties: 
+  propertyCombinations: []
+  canBePickedUp: 1
