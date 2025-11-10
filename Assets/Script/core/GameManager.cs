@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     [Header("暂停菜单")]
     public GameObject pauseMenuPanel;           // PauseMenu prefab 实例
-    
+
     private bool isPaused = false;
 
     void Awake()
@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += HandleSceneLoaded;
+            EnsurePauseMenuReference();
         }
         else
         {
@@ -29,27 +31,43 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+        }
+    }
+
     void Update()
     {
         string currentScene = SceneManager.GetActiveScene().name;
-        
-        // 空格键：暂停/继续游戏（仅在关卡中生效）
-        if (Input.GetKeyDown(KeyCode.Space) && currentScene != "MainMenu")
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // 主菜单中直接退出游戏
+            if (currentScene == "MainMenu")
+            {
+                if (isPaused)
+                {
+                    QuitGame();
+                }
+                else
+                {
+                    PauseGame();
+                }
+                return;
+            }
+
+            // 游戏中：若未暂停则打开暂停菜单；若已暂停则退出游戏
             if (isPaused)
             {
-                ResumeGame();
+                QuitGame();
             }
             else
             {
                 PauseGame();
             }
-        }
-
-        // ESC键：退出或返回菜单
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            HandleEscape();
         }
     }
 
@@ -60,12 +78,18 @@ public class GameManager : MonoBehaviour
     {
         isPaused = true;
         Time.timeScale = 0f; // 暂停时间
+
+        EnsurePauseMenuReference();
         
         // 通过MenuManager显示暂停菜单
         MenuManager menuManager = FindObjectOfType<MenuManager>();
         if (menuManager != null)
         {
             menuManager.ShowPauseMenu();
+            if (menuManager.pauseMenuPanel != null)
+            {
+                pauseMenuPanel = menuManager.pauseMenuPanel;
+            }
         }
         else if (pauseMenuPanel != null)
         {
@@ -89,10 +113,14 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f; // 恢复时间
         
         // MenuManager会处理面板隐藏
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
         
         // 隐藏鼠标光标（如果游戏中不需要鼠标）
-        // Cursor.visible = false;
-        // Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         
         Debug.Log("游戏已继续");
     }
@@ -119,6 +147,65 @@ public class GameManager : MonoBehaviour
             }
             ReturnToMainMenu();
         }
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        EnsurePauseMenuReference();
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
+    }
+
+    private void EnsurePauseMenuReference()
+    {
+        if (pauseMenuPanel != null) return;
+
+        MenuManager menuManager = FindObjectOfType<MenuManager>();
+        if (menuManager != null && menuManager.pauseMenuPanel != null)
+        {
+            pauseMenuPanel = menuManager.pauseMenuPanel;
+            return;
+        }
+
+        GameObject found = FindPauseMenuInScene();
+        if (found != null)
+        {
+            pauseMenuPanel = found;
+        }
+    }
+
+    private GameObject FindPauseMenuInScene()
+    {
+        // 优先查找带Tag的对象
+        GameObject found = null;
+        try
+        {
+            found = GameObject.FindWithTag("PauseMenu");
+        }
+        catch (UnityException)
+        {
+            // Tag 未定义时忽略异常
+        }
+
+        if (found != null) return found;
+
+        // GameObject.Find无法找到未激活对象，改用 Resources 扫描
+        foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>())
+        {
+            if (go == null) continue;
+            if (go.hideFlags != HideFlags.None) continue;
+
+            if (go.CompareTag("PauseMenu") || go.name == "PauseMenu")
+            {
+                return go;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

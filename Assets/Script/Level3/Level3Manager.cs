@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Level3Manager : LevelManager
@@ -41,6 +40,7 @@ public class Level3Manager : LevelManager
     }
 
     private Step step = Step.Start;
+    private bool transitionTriggered = false;
 
     protected override void InitializeLevel()
     {
@@ -108,9 +108,7 @@ public class Level3Manager : LevelManager
                     ShowMessage("石碑被点亮！星星,照应我们所处的位置在宇宙的何方,知道脚下在哪里,才明白未来何去何从。");
                     step = Step.Complete;
                     TriggerCutscene("StarComplete");
-                    
-                    // 延迟后返回主界面
-                    StartCoroutine(ReturnToMainMenu());
+                    TriggerLevelComplete();
                 }
                 // 提示玩家充能进度
                 else if (hasLife || hasStarPoint)
@@ -259,7 +257,7 @@ public class Level3Manager : LevelManager
             }
             else
             {
-                ShowMessage("需要手持有Hard属性的物品才能凿开冰面");
+                ShowMessage($"需要手持具有{GameLocalization.GetPropertyAttributeName(ObjectProperty.Hard)}的物品才能凿开冰面");
             }
             return;
         }
@@ -361,7 +359,7 @@ public class Level3Manager : LevelManager
         // 检查冰锥是否有Hard属性
         if (!heldItemIO.currentProperties.Contains(ObjectProperty.Hard))
         {
-            ShowMessage("冰锥还不够坚硬，无法凿开冰面");
+            ShowMessage($"冰锥还不够{GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}，无法凿开冰面");
             Debug.Log($"TryBreakIceWithIceCone: 冰锥没有Hard属性，无法凿开冰面");
             return;
         }
@@ -508,18 +506,12 @@ public class Level3Manager : LevelManager
 
     #endregion
 
-    /// <summary>
-    /// 返回主界面
-    /// </summary>
-    private IEnumerator ReturnToMainMenu()
+    private void TriggerLevelComplete()
     {
-        // 等待指定时间（让玩家看到通关信息）
-        yield return new WaitForSeconds(returnToMainMenuDelay);
-        
-        Debug.Log("✅ Level3通关！返回主界面...");
-        
-        // 加载主界面场景
-        SceneManager.LoadScene("MainMenu");
+        if (transitionTriggered) return;
+        transitionTriggered = true;
+
+        ShowConclusionAndLoad("Level3", "结语", "MainMenu", returnToMainMenuDelay, "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从。");
     }
 }
 

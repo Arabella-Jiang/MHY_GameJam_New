@@ -79,17 +79,31 @@ public class MenuManager : MonoBehaviour
     /// </summary>
     private Button FindButtonInPanel(GameObject panel, string buttonName)
     {
+        if (panel == null) return null;
+
+        // 先尝试常规路径（兼容旧结构）
         Transform buttonTransform = panel.transform.Find("Panel/" + buttonName);
         if (buttonTransform == null)
         {
             buttonTransform = panel.transform.Find(buttonName);
         }
-        
+
         if (buttonTransform != null)
         {
-            return buttonTransform.GetComponent<Button>();
+            Button directButton = buttonTransform.GetComponent<Button>();
+            if (directButton != null) return directButton;
         }
-        
+
+        // 递归扫描所有子节点（包括未激活），匹配名称
+        Button[] buttons = panel.GetComponentsInChildren<Button>(true);
+        foreach (Button btn in buttons)
+        {
+            if (btn != null && btn.gameObject.name == buttonName)
+            {
+                return btn;
+            }
+        }
+
         Debug.LogWarning($"未找到按钮: {buttonName} in {panel.name}");
         return null;
     }

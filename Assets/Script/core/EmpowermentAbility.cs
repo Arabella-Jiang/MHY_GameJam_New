@@ -49,6 +49,8 @@ public class EmpowermentAbility : MonoBehaviour
     {
         // 查找空槽位
         int emptySlot = FindEmptySlot();
+        ObjectProperty replacedProperty = ObjectProperty.None;
+        bool replaced = false;
 
         if (emptySlot != -1)
         {
@@ -59,6 +61,8 @@ public class EmpowermentAbility : MonoBehaviour
         else
         {
             // 槽位已满，替换第一个格子 TODO：让玩家可以选择替换1/2背包格
+            replaced = true;
+            replacedProperty = propertySlots[0];
             Debug.Log($"背包已满，替换第一个特性: {propertySlots[0]} → {newProperty}");
             propertySlots[0] = newProperty;
         }
@@ -67,6 +71,8 @@ public class EmpowermentAbility : MonoBehaviour
         
         // 触发特性变化事件，通知UI更新
         OnPropertyChanged?.Invoke();
+
+        NotifyPropertyAcquired(newProperty, replaced, replacedProperty);
     }
 
     /// <summary>
@@ -143,5 +149,38 @@ public class EmpowermentAbility : MonoBehaviour
             inventoryInfo += $"[{i + 1}]{propertySlots[i]} ";
         }
         Debug.Log(inventoryInfo);
+    }
+
+    private void NotifyPropertyAcquired(ObjectProperty newProperty, bool replaced, ObjectProperty replacedProperty)
+    {
+        if (newProperty == ObjectProperty.None) return;
+
+        LevelManager manager = FindObjectOfType<LevelManager>();
+        if (manager == null) return;
+
+        string newPropertyName = GameLocalization.GetPropertyDisplayName(newProperty);
+        string replacedPropertyName = GameLocalization.GetPropertyDisplayName(replacedProperty);
+
+        string levelKey = "Global";
+        string trigger = replaced ? "特性替换提示" : "特性获得提示";
+        string message = replaced
+            ? $"背包已满，已用 {newPropertyName} 替换 {replacedPropertyName}。"
+            : $"已获得 {newPropertyName} 特性。";
+
+        if (GameMessageCatalog.TryGetMessageText(levelKey, trigger, out string template) && !string.IsNullOrWhiteSpace(template))
+        {
+            try
+            {
+                message = replaced
+                    ? string.Format(template, newPropertyName, replacedPropertyName)
+                    : string.Format(template, newPropertyName);
+            }
+            catch (System.FormatException)
+            {
+                Debug.LogWarning($"GameMessageCatalog: 触发 \"{levelKey}\" / \"{trigger}\" 的格式化失败，使用默认文本。");
+            }
+        }
+
+        manager.ShowMessage(message);
     }
 }

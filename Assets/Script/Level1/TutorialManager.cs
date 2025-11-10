@@ -1,7 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections;
-
 public class TutorialManager : MonoBehaviour
 {
     public Player player;
@@ -31,6 +28,10 @@ public class TutorialManager : MonoBehaviour
     }
 
     private Step step = Step.Start;
+    private bool branchHintShown = false;
+    private bool stoneHintShown = false;
+    private bool stoneMessageShown = false;
+    private bool transitionTriggered = false;
 
     void Start()
     {
@@ -43,31 +44,74 @@ public class TutorialManager : MonoBehaviour
             tabletTextEffect = stoneTablet.GetComponent<StoneTableEffect>();
             if (tabletTextEffect == null)
             {
-                Log("警告：石碑对象上找不到 StoneTableEffect 组件！");
+                Debug.LogWarning("TutorialManager: 石碑对象上找不到 StoneTableEffect 组件！");
             }
             else
             {
-                Log("已找到 StoneTableEffect 组件");
+                Debug.Log("TutorialManager: 已找到 StoneTableEffect 组件");
             }
         }
 
         // 验证引用
-        if (stoneTablet == null) Log("警告：stoneTablet 引用为空！");
-        if (player == null) Log("警告：player 引用为空！");
-        if (empowerment == null) Log("警告：empowerment 引用为空！");
+        if (stoneTablet == null) Debug.LogWarning("TutorialManager: stoneTablet 引用为空！");
+        if (player == null) Debug.LogWarning("TutorialManager: player 引用为空！");
+        if (empowerment == null) Debug.LogWarning("TutorialManager: empowerment 引用为空！");
 
-        Log("教程开始：靠近石头长按E理解 Hard（数字1切换使用）");
+        ShowLevelMessage("夜幕将临");
+        ShowLevelMessage("石碑说明");
+        ShowLevelMessage("石碑指引");
+
+
         step = Step.LearnHard;
     }
 
     void Update()
     {
+        if (!stoneHintShown && player != null)
+        {
+            if (player.currentInteractTarget == rock)
+            {
+                ShowLevelMessage("靠近石头");
+                stoneHintShown = true;
+            }
+            else if (!stoneMessageShown && rock != null && IsPlayerFacing(rock.transform))
+            {
+                ShowLevelMessage("靠近石头");
+                stoneHintShown = true;
+                stoneMessageShown = true;
+            }
+        }
+
+        if (!branchHintShown && player != null)
+        {
+            InteractableObject currentTarget = player.currentInteractTarget;
+            if (currentTarget != null)
+            {
+                InteractableObject thinInteractable = thinBranch != null ? thinBranch.interactableObject : null;
+                InteractableObject thickInteractable = thickBranch != null ? thickBranch.interactableObject : null;
+                if (currentTarget == thinInteractable || currentTarget == thickInteractable)
+                {
+                    ShowLevelMessage("靠近树枝");
+                    branchHintShown = true;
+                }
+            }
+            else if (thinBranch != null && thickBranch != null)
+            {
+                if (IsPlayerFacing(thinBranch.transform) || IsPlayerFacing(thickBranch.transform))
+                {
+                    ShowLevelMessage("靠近树枝");
+                    branchHintShown = true;
+                }
+            }
+        }
+
         switch (step)
         {
             case Step.LearnHard:
                 if (InventoryHas(ObjectProperty.Hard))
                 {
-                    Log("已获得 Hard。先对水面短按E进行硬化，穿过河流");
+                    ShowLevelMessage("石头特性获取成功");
+                    ShowLevelMessage("获得Hard后");
                     step = Step.HardenWater;
                 }
                 break;
@@ -75,7 +119,11 @@ public class TutorialManager : MonoBehaviour
             case Step.HardenWater:
                 if (waterHard != null && waterHard.canPass)
                 {
-                    Log("水已硬化，可通过。接着对两根树枝分别短按E赋予 Hard");
+                    if (!branchHintShown)
+                    {
+                        ShowLevelMessage("靠近树枝");
+                        branchHintShown = true;
+                    }
                     step = Step.HardenBranches;
                 }
                 break;
@@ -83,7 +131,7 @@ public class TutorialManager : MonoBehaviour
             case Step.HardenBranches:
                 if (thinBranch != null && thickBranch != null && thinBranch.HasHardened() && thickBranch.HasHardened())
                 {
-                    Log("两根树枝已变硬。空手对着任意树枝按Q进行摩擦点火");
+                    ShowLevelMessage("两根树枝已硬化");
                     step = Step.Ignite;
                 }
                 break;
@@ -91,9 +139,8 @@ public class TutorialManager : MonoBehaviour
             case Step.Ignite:
                 if (thinBranch != null && thinBranch.IsIgnited())
                 {
-                    Log("细树枝已点燃。现在有两种方式充能石碑：");
-                    Log("1. 拾起点燃的树枝（F键），带到石碑按Q → 点亮Fire文字");
-                    Log("2. 空手走到石碑按Q → 点亮Human文字");
+                    ShowLevelMessage("细树枝已点燃说明");
+                    ShowLevelMessage("充能提示");
                     step = Step.ChargeTablet;
                 }
                 break;
@@ -118,16 +165,13 @@ public class TutorialManager : MonoBehaviour
                 // 检查是否全部完成
                 if (fireCharged && humanCharged)
                 {
-                    Log("✅ 石碑两个文字部分都已点亮！教程完成！");
+                    ShowLevelMessage("所有文字点亮");
+                    TriggerLevelComplete();
                     step = Step.Complete;
                 }
                 break;
 
             case Step.Complete:
-                // 教程完成，跳转到Level2场景
-                Log("正在跳转到Level2...");
-                StartCoroutine(LoadLevel2AfterDelay(1f));
-                step = Step.Start; // 防止重复触发
                 break;
         }
     }
@@ -151,7 +195,7 @@ public class TutorialManager : MonoBehaviour
             }
             else
             {
-                Log("树枝还没有点燃，无法充能");
+                ShowLevelMessage("树枝未点燃充能失败");
             }
         }
         // 检查是否空手
@@ -161,7 +205,7 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
-            Log("需要手持点燃的树枝或空手才能充能石碑");
+            ShowLevelMessage("充能提示");
         }
     }
 
@@ -172,12 +216,12 @@ public class TutorialManager : MonoBehaviour
     {
         if (fireCharged)
         {
-            Log("Fire文字已经点亮过了");
+            ShowLevelMessage("‘火’文字重复充能");
             return;
         }
 
         fireCharged = true;
-        Log("✅ Fire文字已点亮！");
+        ShowLevelMessage("‘火’文字点亮");
 
         // 点亮Fire文字
         if (tabletTextEffect != null)
@@ -197,12 +241,12 @@ public class TutorialManager : MonoBehaviour
     {
         if (humanCharged)
         {
-            Log("Human文字已经点亮过了");
+            ShowLevelMessage("‘人’文字重复充能");
             return;
         }
 
         humanCharged = true;
-        Log("✅ Human文字已点亮！");
+        ShowLevelMessage("‘人’文字点亮");
 
         // 点亮Human文字
         if (tabletTextEffect != null)
@@ -230,15 +274,43 @@ public class TutorialManager : MonoBehaviour
         return false;
     }
 
-    private void Log(string msg)
+    private void ShowLevelMessage(string trigger)
     {
-        Debug.Log($"[Tutorial] {msg}");
+        if (!GameNotification.ShowByTrigger("Level1", trigger))
+        {
+            Debug.LogWarning($"TutorialManager: 未找到触发消息 {trigger}");
+        }
     }
 
-    private IEnumerator LoadLevel2AfterDelay(float delay)
+    private void TriggerLevelComplete()
     {
-        yield return new WaitForSeconds(delay);
-        Log($"尝试加载场景: Level2");
-        SceneManager.LoadScene("Level2");
+        if (transitionTriggered) return;
+        transitionTriggered = true;
+
+        LevelManager.ShowConclusionAndLoadStatic("Level1", "结语", "Level2", 1.8f, "石碑两个文字部分都已点亮！教程完成！");
+    }
+
+    private bool IsPlayerFacing(Transform target)
+    {
+        if (player == null || target == null) return false;
+
+        Vector3 toTarget = target.position - player.transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        Vector3 forward = player.transform.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        toTarget.Normalize();
+        forward.Normalize();
+
+        return Vector3.Dot(forward, toTarget) >= 0.5f;
     }
 }

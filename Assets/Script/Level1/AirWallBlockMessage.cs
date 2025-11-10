@@ -9,25 +9,25 @@ public class AirWallBlockMessage : MonoBehaviour
 {
     [Header("引用")]
     public WaterHardEffect waterHardEffect; // 关联的WaterHardEffect脚本
-    
-    [Header("消息设置")]
-    public string blockMessage = "水流太急，试试其他办法吧";
     public string playerTag = "Player";
     
     [Header("检测设置")]
     public float detectionDistance = 2f; // 检测玩家距离
     
+    private static bool globalMessageShown = false;
     private bool hasShownMessage = false;
     private GameObject player;
     private Collider playerCollider;
+    private Collider selfCollider;
+    private const float FacingDotThreshold = 0.4f;
     
     void Start()
     {
         // 确保Collider不是Trigger（用于阻挡玩家）
-        Collider col = GetComponent<Collider>();
-        if (col != null)
+        selfCollider = GetComponent<Collider>();
+        if (selfCollider != null)
         {
-            col.isTrigger = false;
+            selfCollider.isTrigger = false;
         }
         
         // 如果未手动指定waterHardEffect，尝试自动查找
@@ -39,7 +39,6 @@ public class AirWallBlockMessage : MonoBehaviour
         // 如果找到了waterHardEffect，使用它的消息设置
         if (waterHardEffect != null)
         {
-            blockMessage = waterHardEffect.blockMessage;
             playerTag = waterHardEffect.playerTag;
         }
         
@@ -58,8 +57,23 @@ public class AirWallBlockMessage : MonoBehaviour
     
     void Update()
     {
+        if (hasShownMessage || globalMessageShown)
+        {
+            return;
+        }
+
         // 如果水已经硬化，不需要检测
         if (waterHardEffect != null && waterHardEffect.canPass)
+        {
+            return;
+        }
+        
+        if (!gameObject.activeInHierarchy)
+        {
+            return;
+        }
+
+        if (selfCollider != null && !selfCollider.enabled)
         {
             return;
         }
@@ -80,36 +94,20 @@ public class AirWallBlockMessage : MonoBehaviour
             return;
         }
         
-        // 计算玩家距离
-        float distance = Vector3.Distance(transform.position, player.transform.position);
-        
-        // 如果玩家靠近且未显示消息
-        if (distance <= detectionDistance && !hasShownMessage)
+        bool facing = IsPlayerFacingAirwall();
+
+        if (facing)
         {
-            // 检查水是否还未硬化
-            if (waterHardEffect != null && !waterHardEffect.canPass)
+            if (!hasShownMessage)
             {
-                Debug.Log($"✅ {blockMessage}");
+                GameNotification.ShowByTrigger("Level1", "水面空气墙阻挡");
                 hasShownMessage = true;
+                globalMessageShown = true;
             }
         }
-        // 如果玩家离开
-        else if (distance > detectionDistance * 1.5f && hasShownMessage)
+        else
         {
             hasShownMessage = false;
-        }
-    }
-    
-    // 保留OnCollisionEnter作为备用（如果玩家有Rigidbody）
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag(playerTag) && !hasShownMessage)
-        {
-            if (waterHardEffect != null && !waterHardEffect.canPass)
-            {
-                Debug.Log($"✅ {blockMessage}");
-                hasShownMessage = true;
-            }
         }
     }
     
@@ -120,9 +118,38 @@ public class AirWallBlockMessage : MonoBehaviour
         {
             if (waterHardEffect != null && !waterHardEffect.canPass)
             {
-                Debug.Log($"✅ {blockMessage}");
-                hasShownMessage = true;
+                if (IsPlayerFacingAirwall())
+                {
+                    GameNotification.ShowByTrigger("Level1", "水面空气墙阻挡");
+                    hasShownMessage = true;
+                    globalMessageShown = true;
+                }
             }
         }
+    }
+
+    private bool IsPlayerFacingAirwall()
+    {
+        if (player == null) return false;
+
+        Vector3 toAirwall = transform.position - player.transform.position;
+        toAirwall.y = 0f;
+        if (toAirwall.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        Vector3 playerForward = player.transform.forward;
+        playerForward.y = 0f;
+        if (playerForward.sqrMagnitude < 0.0001f)
+        {
+            playerForward = Vector3.forward;
+        }
+
+        playerForward.Normalize();
+        toAirwall.Normalize();
+
+        float dot = Vector3.Dot(playerForward, toAirwall);
+        return dot >= FacingDotThreshold;
     }
 }

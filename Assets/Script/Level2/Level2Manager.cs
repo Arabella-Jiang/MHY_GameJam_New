@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Level2Manager : LevelManager
@@ -39,6 +38,7 @@ public class Level2Manager : LevelManager
 
     private Step step = Step.Start;
     private bool hasShownVinePropertyHint = false; // 是否已经显示过老藤特性提示
+    private bool transitionTriggered = false;
 
     protected override void InitializeLevel()
     {
@@ -154,9 +154,7 @@ public class Level2Manager : LevelManager
                     ShowMessage("石碑被点亮！春的意义，即是唤醒世界上一切律动的能力。");
                     step = Step.Complete;
                     TriggerCutscene("SpringComplete");
-                    
-                    // 延迟跳转到Level3
-                    StartCoroutine(ReturnToLevel3());
+                    TriggerLevelComplete();
                 }
                 // 提示玩家充能进度
                 else if (hasFeather || hasWood || hasSun)
@@ -418,18 +416,12 @@ public class Level2Manager : LevelManager
         ShowMessage("当前手持的物品不是需要的组件，或已经充能过了");
     }
 
-    /// <summary>
-    /// 跳转到Level3
-    /// </summary>
-    private IEnumerator ReturnToLevel3()
+    private void TriggerLevelComplete()
     {
-        // 等待指定时间（让玩家看到通关信息）
-        yield return new WaitForSeconds(returnToLevel3Delay);
-        
-        Debug.Log("✅ Level2通关！跳转到Level3...");
-        
-        // 加载Level3场景
-        SceneManager.LoadScene("Level3");
+        if (transitionTriggered) return;
+        transitionTriggered = true;
+
+        ShowConclusionAndLoad("Level2", "结语", "Level3", returnToLevel3Delay, "春的意义，即是唤醒世界上一切律动的能力。");
     }
 }
 

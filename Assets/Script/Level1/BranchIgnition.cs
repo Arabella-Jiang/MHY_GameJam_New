@@ -47,6 +47,7 @@ public class BranchIgnition : MonoBehaviour
         // 两根树枝都需要是 Hard
         if (!HasHardened() || !otherBranch.HasHardened())
         {
+            GameNotification.ShowByTrigger("Level1", "树枝摩擦失败");
             Debug.Log("需要两根树枝都变得坚硬后，再尝试摩擦点火");
             return;
         }
@@ -65,6 +66,7 @@ public class BranchIgnition : MonoBehaviour
     private IEnumerator IgniteRoutine(BranchIgnition target)
     {
         isIgniting = true;
+        GameNotification.ShowRaw("开始摩擦生火...");
         Debug.Log("开始摩擦生火...");
         yield return new WaitForSeconds(rubDuration);
         isIgniting = false;
@@ -94,7 +96,8 @@ public class BranchIgnition : MonoBehaviour
         if (fireEffect != null) fireEffect.Play();
         if (fireLight != null) fireLight.enabled = true;
 
-        Debug.Log("✅ 细树枝已被点燃，可理解/赋予 Flammable");
+        GameNotification.ShowByTrigger("Level1", "细树枝已点燃说明");
+        Debug.Log($"✅ 细树枝已被点燃，可理解/赋予 {GameLocalization.GetPropertyDisplayName(ObjectProperty.Flammable)}");
     }
 }
 

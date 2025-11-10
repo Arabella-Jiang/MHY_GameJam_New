@@ -11,6 +11,7 @@ public class BranchHardEffect : CombinationEffect
             if (!branch.currentProperties.Contains(ObjectProperty.Flammable))
             {
                 branch.currentProperties.Add(ObjectProperty.Flammable);
+                GameNotification.ShowByTrigger("Level1", "树枝硬化成功");
                 Debug.Log("✅ 树枝变得坚硬且易燃！");
             }
             
