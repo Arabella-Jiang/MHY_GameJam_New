@@ -3290,6 +3290,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 2.72
       objectReference: {fileID: 0}
+    - target: {fileID: 3511150256569455965, guid: 31d2200de843e4544ac7f825a3a76be0, type: 3}
+      propertyPath: runSpeed
+      value: 18.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511150256569455965, guid: 31d2200de843e4544ac7f825a3a76be0, type: 3}
+      propertyPath: walkSpeed
+      value: 8.28
+      objectReference: {fileID: 0}
     - target: {fileID: 4161032958521482390, guid: 31d2200de843e4544ac7f825a3a76be0, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.7326673

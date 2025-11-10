@@ -113,6 +113,14 @@ public class GameManager : MonoBehaviour
             Debug.LogError("GameManager: 无法找到 PauseMenu 面板！");
         }
         
+        // 确保EventSystem存在（UI按钮点击需要）
+        if (UnityEngine.EventSystems.EventSystem.current == null)
+        {
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
+        
         // 显示鼠标光标，让玩家可以点击按钮
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;

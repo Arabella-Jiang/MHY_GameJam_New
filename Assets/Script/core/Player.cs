@@ -181,6 +181,21 @@ public class Player : MonoBehaviour
             {
                 Debug.Log($"[{i + 1}] {understandableProperties[i]}");
             }
+            
+            // 检查是否是Level2的老藤，如果是则显示特定提示
+            Level2Manager level2Manager = FindObjectOfType<Level2Manager>();
+            if (level2Manager != null && level2Manager.oldVine != null && currentInteractTarget == level2Manager.oldVine)
+            {
+                GameNotification.ShowByTrigger("Level2", "对着老藤按e成功后");
+            }
+            
+            // 检查是否是Level3的石头，如果是则显示特定提示
+            Level3Manager level3Manager = FindObjectOfType<Level3Manager>();
+            if (level3Manager != null && level3Manager.stone != null && currentInteractTarget == level3Manager.stone)
+            {
+                GameNotification.ShowByTrigger("Level3", "对着石头按e成功后");
+            }
+            
             // 处理特性选择
             StartCoroutine(HandleMultiplePropertySelection(understandableProperties));
         }

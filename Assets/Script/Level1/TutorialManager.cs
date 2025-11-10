@@ -195,7 +195,7 @@ public class TutorialManager : MonoBehaviour
             }
             else
             {
-                ShowLevelMessage("树枝未点燃充能失败");
+                ShowLevelMessage("树枝未点燃，充能失败");
             }
         }
         // 检查是否空手
@@ -287,6 +287,9 @@ public class TutorialManager : MonoBehaviour
         if (transitionTriggered) return;
         transitionTriggered = true;
 
+        // 显示跳转消息
+        GameNotification.ShowByTrigger("Level1", "跳转下一关");
+        
         LevelManager.ShowConclusionAndLoadStatic("Level1", "结语", "Level2", 1.8f, "石碑两个文字部分都已点亮！教程完成！");
     }
 

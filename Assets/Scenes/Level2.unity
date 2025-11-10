@@ -2126,7 +2126,7 @@ MonoBehaviour:
   currentProperties: 01000000
   understandableProperties: 01000000
   propertyCombinations:
-  - requiredProperties: 06000000
+  - requiredProperties: 05000000
     effectComponentName: StoneLongEffect
   - requiredProperties: 03000000
     effectComponentName: StoneFlexibleEffect
@@ -3015,7 +3015,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7139947829897880164, guid: 1abdc26f0666b43bf9be6d938aff4c82, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -880.6
+      value: 41
       objectReference: {fileID: 0}
     - target: {fileID: 7586545513255237365, guid: 1abdc26f0666b43bf9be6d938aff4c82, type: 3}
       propertyPath: m_Pivot.x

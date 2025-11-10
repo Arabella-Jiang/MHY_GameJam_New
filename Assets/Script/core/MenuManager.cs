@@ -13,10 +13,9 @@ public class MenuManager : MonoBehaviour
 
     [Header("InfoMenu设置")]
     [Tooltip("InfoMenu最小显示时间（秒）")]
-    public float infoMenuMinDisplayTime = 3f;
+    public float infoMenuMinDisplayTime = 5f;
 
-    private float infoMenuShowTime = 0f;
-    private bool infoMenuCanSkip = false;
+    private Coroutine infoMenuWaitCoroutine = null;
 
     void Start()
     {
@@ -40,7 +39,6 @@ public class MenuManager : MonoBehaviour
             {
                 startButton.onClick.RemoveAllListeners();
                 startButton.onClick.AddListener(OnStartGameButton);
-                Debug.Log("已绑定 GameStartButton");
             }
             
             Button quitButton = FindButtonInPanel(startMenuPanel, "ExitGameButton");
@@ -48,7 +46,6 @@ public class MenuManager : MonoBehaviour
             {
                 quitButton.onClick.RemoveAllListeners();
                 quitButton.onClick.AddListener(OnQuitButton);
-                Debug.Log("已绑定 ExitGameButton");
             }
         }
         
@@ -85,7 +82,6 @@ public class MenuManager : MonoBehaviour
             }
         }
 
-        Debug.LogWarning($"未找到按钮: {buttonName} in {panel.name}");
         return null;
     }
 
@@ -107,8 +103,44 @@ public class MenuManager : MonoBehaviour
         SetPanelActive(startMenuPanel, false);
         SetPanelActive(pauseMenuPanel, false);
         SetPanelActive(infoMenuPanel, true);
-        infoMenuShowTime = Time.time;
-        infoMenuCanSkip = false;
+        
+        // 暂停游戏，确保InfoMenu显示足够时间
+        Time.timeScale = 0f;
+        
+        // 禁用EventSystem，防止双击等输入事件被处理
+        UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
+        if (eventSystem != null)
+        {
+            eventSystem.enabled = false;
+        }
+        
+        // 停止之前的协程（如果有）
+        if (infoMenuWaitCoroutine != null)
+        {
+            StopCoroutine(infoMenuWaitCoroutine);
+        }
+        
+        // 启动协程，等待5秒后允许跳过（使用WaitForSecondsRealtime，不受timeScale影响）
+        infoMenuWaitCoroutine = StartCoroutine(WaitForInfoMenuDisplay());
+    }
+    
+    /// <summary>
+    /// 协程：等待InfoMenu显示足够时间
+    /// </summary>
+    private System.Collections.IEnumerator WaitForInfoMenuDisplay()
+    {
+        // 使用WaitForSecondsRealtime，不受timeScale影响
+        yield return new WaitForSecondsRealtime(infoMenuMinDisplayTime);
+        
+        // 恢复游戏时间
+        Time.timeScale = 1f;
+        
+        // 重新启用EventSystem，允许玩家交互
+        UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
+        if (eventSystem != null)
+        {
+            eventSystem.enabled = true;
+        }
     }
     
     /// <summary>
@@ -120,6 +152,14 @@ public class MenuManager : MonoBehaviour
         SetPanelActive(pauseMenuPanel, true);
         SetPanelActive(infoMenuPanel, false);
         
+        // 确保EventSystem存在（UI按钮点击需要）
+        if (UnityEngine.EventSystems.EventSystem.current == null)
+        {
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
+        
         // 重新绑定按钮事件（场景切换后可能丢失）
         BindPauseMenuButtons();
     }
@@ -129,117 +169,37 @@ public class MenuManager : MonoBehaviour
     /// </summary>
     private void BindPauseMenuButtons()
     {
-        if (pauseMenuPanel == null)
-        {
-            Debug.LogError("MenuManager: pauseMenuPanel 为 null，无法绑定按钮");
-            return;
-        }
-
-        Debug.Log($"MenuManager: 开始绑定 PauseMenu 按钮，pauseMenuPanel = {pauseMenuPanel.name}");
-
-        // 检查 EventSystem
-        UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
-        if (eventSystem == null)
-        {
-            Debug.LogWarning("MenuManager: 未找到 EventSystem，UI 点击可能无法工作");
-        }
-        else
-        {
-            Debug.Log($"MenuManager: EventSystem 存在: {eventSystem.name}");
-        }
+        if (pauseMenuPanel == null) return;
 
         Button resumeButton = FindButtonInPanel(pauseMenuPanel, "ResumeGameButton");
         if (resumeButton != null)
         {
             resumeButton.onClick.RemoveAllListeners();
-            resumeButton.onClick.AddListener(() => {
-                Debug.Log("ResumeGameButton onClick 事件触发！");
-                OnResumeButton();
-            });
-            Debug.Log($"MenuManager: 已绑定 ResumeGameButton，按钮路径: {GetTransformPath(resumeButton.transform)}");
-            Debug.Log($"ResumeButton 是否可交互: {resumeButton.interactable}, 是否激活: {resumeButton.gameObject.activeSelf}");
-        }
-        else
-        {
-            Debug.LogError($"MenuManager: 未找到 ResumeGameButton in {pauseMenuPanel.name}");
-            // 打印所有子对象名称以便调试
-            PrintAllChildren(pauseMenuPanel.transform);
+            resumeButton.onClick.AddListener(OnResumeButton);
         }
 
         Button returnButton = FindButtonInPanel(pauseMenuPanel, "ReturnToMainMenuButton");
         if (returnButton != null)
         {
             returnButton.onClick.RemoveAllListeners();
-            returnButton.onClick.AddListener(() => {
-                Debug.Log("ReturnToMainMenuButton onClick 事件触发！");
-                OnReturnToMainMenuButton();
-            });
-            Debug.Log("已绑定 ReturnToMainMenuButton");
-        }
-        else
-        {
-            Debug.LogWarning($"MenuManager: 未找到 ReturnToMainMenuButton");
+            returnButton.onClick.AddListener(OnReturnToMainMenuButton);
         }
 
         Button pauseQuitButton = FindButtonInPanel(pauseMenuPanel, "ExitGameButton");
         if (pauseQuitButton != null)
         {
             pauseQuitButton.onClick.RemoveAllListeners();
-            pauseQuitButton.onClick.AddListener(() => {
-                Debug.Log("ExitGameButton onClick 事件触发！");
-                OnQuitButton();
-            });
-            Debug.Log("已绑定 PauseMenu ExitGameButton");
-        }
-        else
-        {
-            Debug.LogWarning($"MenuManager: 未找到 ExitGameButton");
-        }
-    }
-
-    /// <summary>
-    /// 获取 Transform 的完整路径（调试用）
-    /// </summary>
-    private string GetTransformPath(Transform transform)
-    {
-        if (transform == null) return "null";
-        string path = transform.name;
-        Transform parent = transform.parent;
-        while (parent != null)
-        {
-            path = parent.name + "/" + path;
-            parent = parent.parent;
-        }
-        return path;
-    }
-
-    /// <summary>
-    /// 打印所有子对象名称（调试用）
-    /// </summary>
-    private void PrintAllChildren(Transform parent, int depth = 0)
-    {
-        string indent = new string(' ', depth * 2);
-        Debug.Log($"{indent}- {parent.name} (active: {parent.gameObject.activeSelf})");
-        
-        foreach (Transform child in parent)
-        {
-            PrintAllChildren(child, depth + 1);
+            pauseQuitButton.onClick.AddListener(OnQuitButton);
         }
     }
 
     void Update()
     {
-        // InfoMenu显示时，点击任意键开始游戏（除了ESC）
-        if (infoMenuPanel != null && infoMenuPanel.activeSelf)
+        // InfoMenu显示时，只有当Time.timeScale恢复为1（协程完成）后，才允许跳过
+        if (infoMenuPanel != null && infoMenuPanel.activeSelf && Time.timeScale > 0f)
         {
-            // 检查是否已经过了最小显示时间
-            if (!infoMenuCanSkip && Time.time - infoMenuShowTime >= infoMenuMinDisplayTime)
-            {
-                infoMenuCanSkip = true;
-            }
-
-            // 任意键都能开始游戏，除了ESC键，但需要等待最小显示时间
-            if (infoMenuCanSkip && Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape))
+            // 任意键都能开始游戏，除了ESC键
+            if (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape))
             {
                 StartGameAfterInfo();
             }
@@ -271,9 +231,16 @@ public class MenuManager : MonoBehaviour
     /// </summary>
     private void StartGameAfterInfo()
     {
+        // 确保游戏时间已恢复
+        Time.timeScale = 1f;
+        
         if (GameManager.Instance != null)
         {
             GameManager.Instance.StartGame();
+        }
+        else
+        {
+            Debug.LogError("[MenuManager] GameManager.Instance为null！");
         }
     }
 
@@ -282,18 +249,10 @@ public class MenuManager : MonoBehaviour
     /// </summary>
     public void OnResumeButton()
     {
-        Debug.Log("OnResumeButton 被调用了！");
-        
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ResumeGame();
-            
-            // 隐藏暂停菜单
             SetPanelActive(pauseMenuPanel, false);
-        }
-        else
-        {
-            Debug.LogError("OnResumeButton: GameManager.Instance 为 null！");
         }
     }
 

@@ -56,18 +56,14 @@ public class Level2Manager : LevelManager
                 if (fireLightTransform != null && fireLightTransform.gameObject.activeSelf)
                 {
                     hasSun = true;
-                    ShowMessage("你已拥有跟随光源（日组件）");
+                    GameNotification.ShowByTrigger("Level2", "开场日组建说明");
                 }
             }
         }
 
         if (hasSun)
         {
-            ShowMessage("石碑需要三个组件：木、羽、日。你已有跟随光源，继续收集其他组件吧。");
-        }
-        else
-        {
-            ShowMessage("石碑需要三个组件：木、羽、日。继续探索吧。");
+            GameNotification.ShowByTrigger("Level2", "开场石碑信息");
         }
         step = Step.LearnVineProperties;
     }
@@ -93,8 +89,7 @@ public class Level2Manager : LevelManager
                     
                     if (hasLearnedVineProperty)
                     {
-                        // 玩家已经理解了老藤的特性，进入下一步
-                        ShowMessage("已理解老藤的特性！现在可以用这个特性来影响其他物体了。");
+                        
                         step = Step.GetFeather;
                         break;
                     }
@@ -103,7 +98,7 @@ public class Level2Manager : LevelManager
                 // 只在第一次靠近老藤时显示一次提示，告诉玩家如何选择特性
                 if (oldVine != null && player.currentInteractTarget == oldVine && !hasShownVinePropertyHint)
                 {
-                    ShowMessage("老藤有多种特性：长、柔韧、细。长按E理解特性，然后按数字键1/2/3选择要理解的特性。");
+                    GameNotification.ShowByTrigger("Level2", "第一次注视老藤时的提示1");
                     hasShownVinePropertyHint = true;
                 }
                 break;
@@ -111,7 +106,7 @@ public class Level2Manager : LevelManager
             case Step.GetFeather:
                 if (hasFeather)
                 {
-                    ShowMessage("已获得羽毛。接下来需要获取木组件。");
+                    GameNotification.ShowByTrigger("Level2", "获得羽毛后");
                     step = Step.GetWood;
                 }
                 break;
@@ -121,12 +116,12 @@ public class Level2Manager : LevelManager
                 {
                     if (!hasSun)
                     {
-                        ShowMessage("已获得木组件。你需要先获得光能量（日组件）。");
+                        GameNotification.ShowByTrigger("Level2", "获得木组件，但没有日组件");
                         step = Step.GetSun;
                     }
                     else
                     {
-                        ShowMessage("已获得木组件。手持组件前往石碑充能（短按E）。");
+                        GameNotification.ShowByTrigger("Level2", "获得木组件且已有日组件");
                         step = Step.ChargeTablet;
                     }
                 }
@@ -135,7 +130,7 @@ public class Level2Manager : LevelManager
             case Step.GetSun:
                 if (hasSun)
                 {
-                    ShowMessage("已拥有光能量（日组件）。前往石碑充能（使用特性或手持物品）。");
+                    GameNotification.ShowByTrigger("Level2", "获得日组件后");
                     step = Step.ChargeTablet;
                 }
                 break;
@@ -151,7 +146,7 @@ public class Level2Manager : LevelManager
                         effect.TriggerEffect();
                     }
                     
-                    ShowMessage("石碑被点亮！春的意义，即是唤醒世界上一切律动的能力。");
+                    GameNotification.ShowByTrigger("Level2", "三个组件全部充能完成");
                     step = Step.Complete;
                     TriggerCutscene("SpringComplete");
                     TriggerLevelComplete();
@@ -169,7 +164,9 @@ public class Level2Manager : LevelManager
                         
                         if (missing != "")
                         {
-                            ShowMessage($"还需要充能：{missing.Trim()} ({chargedCount}/3)");
+                            // 使用动态消息
+                            string progressMessage = $"还需要充能：{missing.Trim()} ({chargedCount}/3)";
+                            GameNotification.ShowRaw(progressMessage);
                         }
                     }
                 }
@@ -180,19 +177,19 @@ public class Level2Manager : LevelManager
     public void OnFeatherObtained()
     {
         hasFeather = true;
-        ShowMessage("获得了羽毛！");
+        GameNotification.ShowByTrigger("Level2", "拾取羽毛时");
     }
 
     public void OnWoodObtained()
     {
         hasWood = true;
-        ShowMessage("获得了木组件！");
+        GameNotification.ShowByTrigger("Level2", "拾取木组件时");
     }
 
     public void OnSunObtained()
     {
         hasSun = true;
-        ShowMessage("获得了日组件！");
+        GameNotification.ShowByTrigger("Level2", "拾取日组件时");
     }
 
     /// <summary>
@@ -202,12 +199,12 @@ public class Level2Manager : LevelManager
     {
         if (featherCharged)
         {
-            ShowMessage("羽毛已经充能过了");
+            GameNotification.ShowByTrigger("Level2", "羽毛重复充能");
             return;
         }
         
         featherCharged = true;
-        ShowMessage("✅ 羽毛已充能到石碑！");
+        GameNotification.ShowByTrigger("Level2", "羽毛充能成功");
         
         // 点亮"羽"文字部分
         if (tabletTextEffect != null)
@@ -230,12 +227,12 @@ public class Level2Manager : LevelManager
     {
         if (woodCharged)
         {
-            ShowMessage("木组件已经充能过了");
+            GameNotification.ShowByTrigger("Level2", "木组件重复充能");
             return;
         }
         
         woodCharged = true;
-        ShowMessage("✅ 木组件已充能到石碑！");
+        GameNotification.ShowByTrigger("Level2", "木组件充能成功");
         
         // 点亮"木"文字部分
         if (tabletTextEffect != null)
@@ -257,18 +254,18 @@ public class Level2Manager : LevelManager
     {
         if (sunCharged)
         {
-            ShowMessage("日组件已经充能过了");
+            GameNotification.ShowByTrigger("Level2", "日组件重复充能");
             return;
         }
         
         if (!hasSun)
         {
-            ShowMessage("你还没有光能量（日组件）");
+            GameNotification.ShowByTrigger("Level2", "缺少日组件尝试充能");
             return;
         }
         
         sunCharged = true;
-        ShowMessage("✅ 日组件已充能到石碑！");
+        GameNotification.ShowByTrigger("Level2", "日组件充能成功");
         
         // 点亮"日"文字部分
         if (tabletTextEffect != null)
@@ -382,11 +379,11 @@ public class Level2Manager : LevelManager
                 }
                 else if (sunCharged)
                 {
-                    ShowMessage("日组件已经充能过了");
+                    GameNotification.ShowByTrigger("Level2", "日组件重复充能");
                 }
                 else
                 {
-                    ShowMessage("需要手持组件（羽毛或木）才能充能石碑，或拥有日组件（空手按Q键）");
+                    GameNotification.ShowByTrigger("Level2", "缺少手持组件时提示");
                 }
             }
         }
@@ -413,7 +410,7 @@ public class Level2Manager : LevelManager
 
         // 日组件不需要手持，而是使用光能量特性（在HandlePlayerUse中处理）
 
-        ShowMessage("当前手持的物品不是需要的组件，或已经充能过了");
+        GameNotification.ShowByTrigger("Level2", "尝试充能但手持物品错误");
     }
 
     private void TriggerLevelComplete()

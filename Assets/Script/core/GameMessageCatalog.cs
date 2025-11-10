@@ -35,18 +35,18 @@ public static class GameMessageCatalog
     private static readonly MessageEntry[] BaseMessages =
     {
         // Level 1 - 教程提示
-        new MessageEntry("Level1", "夜幕将临", "夜晚快到了，必须有光才能继续前进。"),
-        new MessageEntry("Level1", "石碑说明", "石碑上的文字是沟通神意与自然的通道，试试将文字所需的能量注入其中，或许会获取意想不到的力量。"),
-        new MessageEntry("Level1", "石碑指引", "石碑需要两个组件：火、人。请继续探索吧。"),
+        new MessageEntry("Level1", "夜幕将临", "夜晚快到了，必须有光才能继续前进"),
+        new MessageEntry("Level1", "石碑说明", "石碑上的文字是沟通神意与自然的通道，试试将文字所需的能量注入其中，或许会获取意想不到的力量"),
+        new MessageEntry("Level1", "石碑指引", "石碑需要两个组件：火、人。请继续探索吧"),
 
         //石头
         new MessageEntry("Level1", "靠近石头", "试试长按e获得石头的特性吧"),
         new MessageEntry("Level1", "石头特性获取成功", $"{GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}已放入背包1号位"),
-        new MessageEntry("Level1", "获得Hard后", $"已获得 {GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}。尝试对水面使用特性，穿过河流吧"),
+        new MessageEntry("Level1", "获得Hard后", $"已获得 {GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}。尝试对水面使用特性，使河流变硬，然后穿过河流吧"),
 
         //水面
-        new MessageEntry("Level1", "水面空气墙阻挡", "水流太急，太危险了，试试其他办法吧。"),
-        new MessageEntry("Level1", "水面硬化成功", "水面已硬化，可以通过啦。"),
+        new MessageEntry("Level1", "水面空气墙阻挡", "水流太急，太危险了，试试其他办法吧"),
+        new MessageEntry("Level1", "水面硬化成功", "水面已硬化，可以通过啦"),
 
         //树枝
         new MessageEntry("Level1", "靠近树枝", "树枝现在太软啦，不能被点燃，试着对树枝使用特性吧"),
@@ -55,71 +55,72 @@ public static class GameMessageCatalog
         new MessageEntry("Level1", "两根树枝已硬化", "两根树枝已变硬。试试看对着任意树枝按Q进行摩擦点火吧"),
         new MessageEntry("Level1", "细树枝已点燃说明", "细树枝已点燃。"),
 
-        new MessageEntry("Level1", "树枝未点燃充能失败", "树枝还没有点燃，无法充能"),
+        new MessageEntry("Level1", "树枝未点燃，充能失败", "树枝还没有点燃，无法充能"),
         
         //石碑
-        new MessageEntry("Level1", "充能提示", "需要手持点燃树枝才能充能石碑。"),
+        new MessageEntry("Level1", "充能提示", "需要手持点燃树枝才能充能石碑"),
         new MessageEntry("Level1", "‘火’文字重复充能", "‘火’文字已经点亮过了"),
         new MessageEntry("Level1", "‘火’文字点亮", "‘火’已点亮！"),
         new MessageEntry("Level1", "‘人’文字重复充能", "‘人’已经点亮过了"),
         new MessageEntry("Level1", "‘人’文字点亮", "‘人’已点亮！"),
         new MessageEntry("Level1", "所有文字点亮", "石碑两个文字部分都已点亮！恭喜你获得了光！"),
-        new MessageEntry("Level1", "结语", "人本就是大地之子，与世界共鸣也是世界的一部分。"),
+        new MessageEntry("Level1", "结语", "人本就是大地之子，与世界共鸣也是世界的一部分"),
         new MessageEntry("Level1", "跳转下一关", "正在跳转到Level2..."),
 
         // Level 2 - 开场与流程提示
 
         //开始
-        new MessageEntry("Level2", "开场石碑信息", "石碑需要三个组件：木、羽、日。你已有跟随光源，继续收集其他组件吧。"),
+        new MessageEntry("Level2", "开场石碑信息", "石碑需要三个组件：木、羽、日。你已有跟随光源，继续收集其他组件吧"),
         new MessageEntry("Level2", "开场日组建说明", "你已拥有跟随光源（日组件）"),
 
         //老藤
-        new MessageEntry("Level2", "第一次注视老藤时的提示1", "老藤有多种特性：长、柔韧、细。长按E理解特性，然后按数字键1/2/3选择要理解的特性。"),
+        new MessageEntry("Level2", "第一次注视老藤时的提示1", "老藤有多种特性：长、柔韧、细。长按E理解特性，然后按数字键1/2/3选择要理解的特性"),
         new MessageEntry("Level2", "对着老藤按e成功后", "选择要理解的特性： 1. 细 2. 长 3. 柔韧"),
         
-        new MessageEntry("Level2", "获得羽毛后", "已获得羽毛。接下来需要获取木组件。"),
-        new MessageEntry("Level2", "获得木组件但没有日组件", "已获得木组件。你需要先获得光能量（日组件）。"),
-        new MessageEntry("Level2", "获得木组件且已有日组件", "已获得木组件。手持组件前往石碑充能（短按E）。"),
-        new MessageEntry("Level2", "获得日组件后", "已拥有光能量（日组件）。前往石碑充能（使用特性或手持物品）。"),
-        new MessageEntry("Level2", "三组件全部充能完成", "石碑被点亮！春的意义，即是唤醒世界上一切律动的能力。"),
-        new MessageEntry("Level2", "结语", "春的意义，即是唤醒世界上一切律动的能力。"),
+        new MessageEntry("Level2", "获得羽毛后", "已获得羽毛。接下来需要获取木组件"),
+        new MessageEntry("Level2", "获得木组件，但没有日组件", "已获得木组件。你需要先获得光能量（日组件）"),
+        new MessageEntry("Level2", "获得木组件且已有日组件", "已获得木组件。手持组件前往石碑充能（短按E）"),
+        new MessageEntry("Level2", "获得日组件后", "已拥有光能量（日组件）。前往石碑充能（使用特性或手持物品）"),
+        new MessageEntry("Level2", "三个组件全部充能完成", "石碑被点亮！"),
+        new MessageEntry("Level2", "结语", "春的意义，即是唤醒世界上一切律动的能力"),
         new MessageEntry("Level2", "拾取羽毛时", "获得了羽毛！"),
         new MessageEntry("Level2", "拾取木组件时", "获得了木组件！"),
         new MessageEntry("Level2", "拾取日组件时", "获得了日组件！"),
         new MessageEntry("Level2", "羽毛重复充能", "羽毛已经充能过了"),
-        new MessageEntry("Level2", "羽毛充能成功", "✅ 羽毛已充能到石碑！"),
+        new MessageEntry("Level2", "羽毛充能成功", "羽毛已充能到石碑！"),
         new MessageEntry("Level2", "木组件重复充能", "木组件已经充能过了"),
-        new MessageEntry("Level2", "木组件充能成功", "✅ 木组件已充能到石碑！"),
+        new MessageEntry("Level2", "木组件充能成功", "木组件已充能到石碑！"),
         new MessageEntry("Level2", "日组件重复充能", "日组件已经充能过了"),
         new MessageEntry("Level2", "缺少日组件尝试充能", "你还没有光能量（日组件）"),
-        new MessageEntry("Level2", "日组件充能成功", "✅ 日组件已充能到石碑！"),
+        new MessageEntry("Level2", "日组件充能成功", "日组件已充能到石碑！"),
         new MessageEntry("Level2", "尝试充能但手持物品错误", "当前手持的物品不是需要的组件，或已经充能过了"),
         new MessageEntry("Level2", "缺少手持组件时提示", "需要手持组件（羽毛或木）才能充能石碑，或拥有日组件（空手按Q键）"),
         new MessageEntry("Level2", "结语", "春的意义，即是唤醒世界上一切律动的能力。"),
 
         // Level 3 - 开场与流程提示
         new MessageEntry("Level3", "开场：故事引导", "星光照亮寻找神灵的旅途，连世界也会为勇敢者歌唱赞歌"),
-        new MessageEntry("Level3", "开场：说明目标组件", "石碑需要两个组件：生、星点。继续探索吧。"),
-        new MessageEntry("Level3", "获得生组件后", "已获得\"生\"组件。接下来需要获取\"星点\"组件。"),
-        new MessageEntry("Level3", "获得星点组件后", "已获得\"星点\"组件。前往石碑充能（短按E）。"),
-        new MessageEntry("Level3", "充能完成", "石碑被点亮！星星,照应我们所处的位置在宇宙的何方,知道脚下在哪里,才明白未来何去何从。"),
-        new MessageEntry("Level3", "结语", "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从。"),
+        new MessageEntry("Level3", "开场：说明目标组件", "石碑需要两个组件：生、星点，继续探索吧"),
+        new MessageEntry("Level3", "获得生组件后", "已获得\"生\"组件。接下来需要获取\"星点\"组件"),
+        new MessageEntry("Level3", "获得星点组件后", "已获得\"星点\"组件，前往石碑充能（短按E）"),
+        new MessageEntry("Level3", "充能完成", "石碑被点亮！"),
+        new MessageEntry("Level3", "结语", "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从"),
         new MessageEntry("Level3", "拾取生组件时", "获得了\"生\"组件！"),
         new MessageEntry("Level3", "拾取星点组件时", "获得了\"星点\"组件！"),
         new MessageEntry("Level3", "生组件重复充能", "\"生\"组件已经充能过了"),
-        new MessageEntry("Level3", "生组件充能成功", "✅ \"生\"组件已充能到石碑！"),
+        new MessageEntry("Level3", "生组件充能成功", "\"生\"组件已充能到石碑！"),
         new MessageEntry("Level3", "星点组件重复充能", "\"星点\"组件已经充能过了"),
-        new MessageEntry("Level3", "星点组件充能成功", "✅ \"星点\"组件已充能到石碑！"),
+        new MessageEntry("Level3", "星点组件充能成功", " \"星点\"组件已充能到石碑！"),
         new MessageEntry("Level3", "凿冰面缺少硬属性时", $"需要手持具有{GameLocalization.GetPropertyAttributeName(ObjectProperty.Hard)}的物品才能凿开冰面"),
-        new MessageEntry("Level3", "未手持组件尝试充能石碑", "需要手持组件才能充能石碑。请先拾取\"生\"或\"星点\"组件。"),
+        new MessageEntry("Level3", "未手持组件尝试充能石碑", "需要手持组件才能充能石碑。请先拾取\"生\"或\"星点\"组件"),
         new MessageEntry("Level3", "凿冰面时未拿冰锥", "需要手持冰锥才能凿开冰面"),
         new MessageEntry("Level3", "凿冰面时冰锥缺少Hard属性", $"冰锥还不够{GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}，无法凿开冰面"),
         new MessageEntry("Level3", "手持物品错误或已充能", "当前手持的物品不是需要的组件，或已经充能过了"),
-        new MessageEntry("Level3", "结语", "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从。"),
+        new MessageEntry("Level3", "对着石头按e成功后", $"选择要理解的特性： 1. {GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)} 2. {GameLocalization.GetPropertyDisplayName(ObjectProperty.Heavy)}"),
+        new MessageEntry("Level3", "结语", "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从"),
 
         // 全局提示
-        new MessageEntry("Global", "特性获得提示", "已获得 {0} 特性。"),
-        new MessageEntry("Global", "特性替换提示", "背包已满，已用 {0} 替换 {1}。"),
+        new MessageEntry("Global", "特性获得提示", "已获得 {0} 特性"),
+        new MessageEntry("Global", "特性替换提示", "背包已满，是否已用 {0} 替换 {1}"),
     };
 
     /// <summary>

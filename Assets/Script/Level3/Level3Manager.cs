@@ -46,8 +46,8 @@ public class Level3Manager : LevelManager
     {
         base.InitializeLevel();
 
-        ShowMessage("星光照亮寻找神灵的旅途，连世界也会为勇敢者歌唱赞歌");
-        ShowMessage("石碑需要两个组件：生、星点。继续探索吧。");
+        GameNotification.ShowByTrigger("Level3", "开场：故事引导");
+        GameNotification.ShowByTrigger("Level3", "开场：说明目标组件");
         step = Step.LearnProperties;
     }
 
@@ -77,7 +77,7 @@ public class Level3Manager : LevelManager
             case Step.GetLife:
                 if (hasLife)
                 {
-                    ShowMessage("已获得\"生\"组件。接下来需要获取\"星点\"组件。");
+                    GameNotification.ShowByTrigger("Level3", "获得生组件后");
                     step = Step.GetStarPoint;
                 }
                 break;
@@ -85,7 +85,7 @@ public class Level3Manager : LevelManager
             case Step.GetStarPoint:
                 if (hasStarPoint)
                 {
-                    ShowMessage("已获得\"星点\"组件。前往石碑充能（短按E）。");
+                    GameNotification.ShowByTrigger("Level3", "获得星点组件后");
                     step = Step.ChargeTablet;
                 }
                 break;
@@ -105,7 +105,7 @@ public class Level3Manager : LevelManager
                         Debug.LogWarning("StarTabletEffect component not found on stone tablet!");
                     }
                     
-                    ShowMessage("石碑被点亮！星星,照应我们所处的位置在宇宙的何方,知道脚下在哪里,才明白未来何去何从。");
+                    GameNotification.ShowByTrigger("Level3", "充能完成");
                     step = Step.Complete;
                     TriggerCutscene("StarComplete");
                     TriggerLevelComplete();
@@ -122,7 +122,9 @@ public class Level3Manager : LevelManager
                         
                         if (missing != "")
                         {
-                            ShowMessage($"还需要充能：{missing.Trim()} ({chargedCount}/2)");
+                            // 使用动态消息
+                            string progressMessage = $"还需要充能：{missing.Trim()} ({chargedCount}/2)";
+                            GameNotification.ShowRaw(progressMessage);
                         }
                     }
                 }
@@ -133,13 +135,13 @@ public class Level3Manager : LevelManager
     public void OnLifeObtained()
     {
         hasLife = true;
-        ShowMessage("获得了\"生\"组件！");
+        GameNotification.ShowByTrigger("Level3", "拾取生组件时");
     }
 
     public void OnStarPointObtained()
     {
         hasStarPoint = true;
-        ShowMessage("获得了\"星点\"组件！");
+        GameNotification.ShowByTrigger("Level3", "拾取星点组件时");
     }
 
     /// <summary>
@@ -149,12 +151,12 @@ public class Level3Manager : LevelManager
     {
         if (lifeCharged)
         {
-            ShowMessage("\"生\"组件已经充能过了");
+            GameNotification.ShowByTrigger("Level3", "生组件重复充能");
             return;
         }
         
         lifeCharged = true;
-        ShowMessage("✅ \"生\"组件已充能到石碑！");
+        GameNotification.ShowByTrigger("Level3", "生组件充能成功");
         
         // 点亮"生"文字部分
         if (tabletTextEffect != null)
@@ -176,12 +178,12 @@ public class Level3Manager : LevelManager
     {
         if (starPointCharged)
         {
-            ShowMessage("\"星点\"组件已经充能过了");
+            GameNotification.ShowByTrigger("Level3", "星点组件重复充能");
             return;
         }
         
         starPointCharged = true;
-        ShowMessage("✅ \"星点\"组件已充能到石碑！");
+        GameNotification.ShowByTrigger("Level3", "星点组件充能成功");
         
         // 点亮"星点"文字部分
         if (tabletTextEffect != null)
@@ -257,7 +259,7 @@ public class Level3Manager : LevelManager
             }
             else
             {
-                ShowMessage($"需要手持具有{GameLocalization.GetPropertyAttributeName(ObjectProperty.Hard)}的物品才能凿开冰面");
+                GameNotification.ShowByTrigger("Level3", "凿冰面缺少硬属性时");
             }
             return;
         }
@@ -273,7 +275,7 @@ public class Level3Manager : LevelManager
             else
             {
                 // 如果没有手持物品，提示玩家需要手持组件
-                ShowMessage("需要手持组件才能充能石碑。请先拾取" + (hasLife ? "" : "\"生\"") + (hasStarPoint ? "" : (hasLife ? "或\"星点\"" : "或\"星点\"")) + "组件。");
+                GameNotification.ShowByTrigger("Level3", "未手持组件尝试充能石碑");
             }
         }
     }
@@ -299,7 +301,7 @@ public class Level3Manager : LevelManager
             return;
         }
 
-        ShowMessage("当前手持的物品不是需要的组件，或已经充能过了");
+        GameNotification.ShowByTrigger("Level3", "手持物品错误或已充能");
     }
 
     #region 冰面转换逻辑（两种触发方式）
@@ -349,7 +351,7 @@ public class Level3Manager : LevelManager
         
         if (!isIceCone)
         {
-            ShowMessage("需要手持冰锥才能凿开冰面");
+            GameNotification.ShowByTrigger("Level3", "凿冰面时未拿冰锥");
             Debug.Log($"TryBreakIceWithIceCone: 手持物品 {heldItem.name} 不是冰锥");
             return;
         }
@@ -359,7 +361,7 @@ public class Level3Manager : LevelManager
         // 检查冰锥是否有Hard属性
         if (!heldItemIO.currentProperties.Contains(ObjectProperty.Hard))
         {
-            ShowMessage($"冰锥还不够{GameLocalization.GetPropertyDisplayName(ObjectProperty.Hard)}，无法凿开冰面");
+            GameNotification.ShowByTrigger("Level3", "凿冰面时冰锥缺少Hard属性");
             Debug.Log($"TryBreakIceWithIceCone: 冰锥没有Hard属性，无法凿开冰面");
             return;
         }
