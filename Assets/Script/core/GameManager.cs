@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 游戏管理器，处理暂停、退出等全局功能
@@ -85,7 +87,15 @@ public class GameManager : MonoBehaviour
         MenuManager menuManager = FindObjectOfType<MenuManager>();
         if (menuManager != null)
         {
+            // 确保 MenuManager 也有正确的引用
+            if (pauseMenuPanel != null && menuManager.pauseMenuPanel != pauseMenuPanel)
+            {
+                menuManager.pauseMenuPanel = pauseMenuPanel;
+            }
+            
             menuManager.ShowPauseMenu();
+            
+            // 再次同步引用
             if (menuManager.pauseMenuPanel != null)
             {
                 pauseMenuPanel = menuManager.pauseMenuPanel;
@@ -93,8 +103,14 @@ public class GameManager : MonoBehaviour
         }
         else if (pauseMenuPanel != null)
         {
-            // 后备方案：直接显示pauseMenuPanel
+            // 后备方案：直接显示pauseMenuPanel并绑定按钮
             pauseMenuPanel.SetActive(true);
+            BindPauseMenuButtons();
+            Debug.LogWarning("GameManager: 未找到 MenuManager，直接显示并绑定 PauseMenu");
+        }
+        else
+        {
+            Debug.LogError("GameManager: 无法找到 PauseMenu 面板！");
         }
         
         // 显示鼠标光标，让玩家可以点击按钮
@@ -162,7 +178,19 @@ public class GameManager : MonoBehaviour
 
     private void EnsurePauseMenuReference()
     {
-        if (pauseMenuPanel != null) return;
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        if (pauseMenuPanel != null)
+        {
+            if (!pauseMenuPanel.scene.IsValid() || pauseMenuPanel.scene != currentScene)
+            {
+                pauseMenuPanel = null;
+            }
+            else
+            {
+                return;
+            }
+        }
 
         MenuManager menuManager = FindObjectOfType<MenuManager>();
         if (menuManager != null && menuManager.pauseMenuPanel != null)
@@ -178,28 +206,117 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 绑定 PauseMenu 按钮事件（当没有 MenuManager 时使用）
+    /// </summary>
+    private void BindPauseMenuButtons()
+    {
+        if (pauseMenuPanel == null)
+        {
+            Debug.LogError("GameManager: pauseMenuPanel 为 null，无法绑定按钮");
+            return;
+        }
+
+        Debug.Log($"GameManager: 开始绑定 PauseMenu 按钮，pauseMenuPanel = {pauseMenuPanel.name}");
+
+        // 检查 EventSystem
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem == null)
+        {
+            Debug.LogWarning("GameManager: 未找到 EventSystem，UI 点击可能无法工作");
+        }
+        else
+        {
+            Debug.Log($"GameManager: EventSystem 存在: {eventSystem.name}");
+        }
+
+        // 查找 ResumeGameButton
+        Button resumeButton = FindButtonInPanel(pauseMenuPanel, "ResumeGameButton");
+        if (resumeButton != null)
+        {
+            resumeButton.onClick.RemoveAllListeners();
+            resumeButton.onClick.AddListener(() => {
+                Debug.Log("GameManager: ResumeGameButton onClick 事件触发！");
+                ResumeGame();
+            });
+            Debug.Log($"GameManager: 已绑定 ResumeGameButton，可交互: {resumeButton.interactable}, 激活: {resumeButton.gameObject.activeSelf}");
+        }
+        else
+        {
+            Debug.LogError($"GameManager: 未找到 ResumeGameButton");
+        }
+
+        // 查找 ReturnToMainMenuButton
+        Button returnButton = FindButtonInPanel(pauseMenuPanel, "ReturnToMainMenuButton");
+        if (returnButton != null)
+        {
+            returnButton.onClick.RemoveAllListeners();
+            returnButton.onClick.AddListener(() => {
+                Debug.Log("GameManager: ReturnToMainMenuButton onClick 事件触发！");
+                ReturnToMainMenu();
+            });
+            Debug.Log("GameManager: 已绑定 ReturnToMainMenuButton");
+        }
+
+        // 查找 ExitGameButton
+        Button quitButton = FindButtonInPanel(pauseMenuPanel, "ExitGameButton");
+        if (quitButton != null)
+        {
+            quitButton.onClick.RemoveAllListeners();
+            quitButton.onClick.AddListener(() => {
+                Debug.Log("GameManager: ExitGameButton onClick 事件触发！");
+                QuitGame();
+            });
+            Debug.Log("GameManager: 已绑定 ExitGameButton");
+        }
+    }
+
+    /// <summary>
+    /// 在 Panel 中查找指定名称的 Button
+    /// </summary>
+    private Button FindButtonInPanel(GameObject panel, string buttonName)
+    {
+        if (panel == null) return null;
+
+        // 先尝试常规路径
+        Transform buttonTransform = panel.transform.Find("Panel/" + buttonName);
+        if (buttonTransform == null)
+        {
+            buttonTransform = panel.transform.Find(buttonName);
+        }
+
+        if (buttonTransform != null)
+        {
+            Button directButton = buttonTransform.GetComponent<Button>();
+            if (directButton != null) return directButton;
+        }
+
+        // 递归扫描所有子节点（包括未激活），匹配名称
+        Button[] buttons = panel.GetComponentsInChildren<Button>(true);
+        foreach (Button btn in buttons)
+        {
+            if (btn != null && btn.gameObject.name == buttonName)
+            {
+                return btn;
+            }
+        }
+
+        return null;
+    }
+
     private GameObject FindPauseMenuInScene()
     {
-        // 优先查找带Tag的对象
-        GameObject found = null;
-        try
-        {
-            found = GameObject.FindWithTag("PauseMenu");
-        }
-        catch (UnityException)
-        {
-            // Tag 未定义时忽略异常
-        }
+        // 只使用名称查找，避免 tag 未定义导致的错误
+        Scene currentScene = SceneManager.GetActiveScene();
 
-        if (found != null) return found;
-
-        // GameObject.Find无法找到未激活对象，改用 Resources 扫描
         foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>())
         {
             if (go == null) continue;
             if (go.hideFlags != HideFlags.None) continue;
+            if (!go.scene.IsValid() || go.scene != currentScene) continue;
 
-            if (go.CompareTag("PauseMenu") || go.name == "PauseMenu")
+            // 只匹配名称，不检查 tag
+            if (go.name == "PauseMenu")
             {
                 return go;
             }
