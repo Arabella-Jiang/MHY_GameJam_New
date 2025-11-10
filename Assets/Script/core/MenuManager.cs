@@ -152,6 +152,20 @@ public class MenuManager : MonoBehaviour
         SetPanelActive(pauseMenuPanel, true);
         SetPanelActive(infoMenuPanel, false);
         
+        // 确保PauseMenu全屏显示
+        if (pauseMenuPanel != null)
+        {
+            RectTransform pauseRect = pauseMenuPanel.GetComponent<RectTransform>();
+            if (pauseRect != null)
+            {
+                pauseRect.anchorMin = Vector2.zero;
+                pauseRect.anchorMax = Vector2.one;
+                pauseRect.sizeDelta = Vector2.zero;
+                pauseRect.anchoredPosition = Vector2.zero;
+                pauseRect.localScale = Vector3.one;
+            }
+        }
+        
         // 确保EventSystem存在（UI按钮点击需要）
         if (UnityEngine.EventSystems.EventSystem.current == null)
         {
@@ -197,7 +211,7 @@ public class MenuManager : MonoBehaviour
     {
         // InfoMenu显示时，只有当Time.timeScale恢复为1（协程完成）后，才允许跳过
         if (infoMenuPanel != null && infoMenuPanel.activeSelf && Time.timeScale > 0f)
-        {
+            {
             // 任意键都能开始游戏，除了ESC键
             if (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape))
             {

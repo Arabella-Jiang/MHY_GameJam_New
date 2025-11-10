@@ -68,6 +68,13 @@ public class BranchIgnition : MonoBehaviour
         isIgniting = true;
         GameNotification.ShowRaw("开始摩擦生火...");
         Debug.Log("开始摩擦生火...");
+        
+        // 播放摩擦木头音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayRubWoodGrindIceSound();
+        }
+        
         yield return new WaitForSeconds(rubDuration);
         isIgniting = false;
 
@@ -95,6 +102,18 @@ public class BranchIgnition : MonoBehaviour
         // 视觉表现（占位）
         if (fireEffect != null) fireEffect.Play();
         if (fireLight != null) fireLight.enabled = true;
+        
+        // 播放柴火燃烧音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayFireBurnSound();
+        }
+
+        // 触发生火过场动画
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("FireIgnite");
+        }
 
         GameNotification.ShowByTrigger("Level1", "细树枝已点燃说明");
         Debug.Log($"✅ 细树枝已被点燃，可理解/赋予 {GameLocalization.GetPropertyDisplayName(ObjectProperty.Flammable)}");

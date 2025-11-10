@@ -1,0 +1,14 @@
+Font: Source Han Serif SC VF  Style: ExtraLight
+Point Size: 64   SP/PD Ratio: 7.8%
+
+Characters included: 263/264
+Missing characters: 1
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+ID: 10	Hex: A	Char [
+]
+
+Characters excluded from packing:
+----------------------------------------

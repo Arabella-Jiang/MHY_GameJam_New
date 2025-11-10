@@ -120,7 +120,8 @@ public static class GameMessageCatalog
 
         // 全局提示
         new MessageEntry("Global", "特性获得提示", "已获得 {0} 特性"),
-        new MessageEntry("Global", "特性替换提示", "背包已满，是否已用 {0} 替换 {1}"),
+        //new MessageEntry("Global", "特性替换提示", "背包已满，是否已用 {0} 替换 {1}"),
+        new MessageEntry("Global", "玩家切换特性选择", "切换成 {0} 特性"),
     };
 
     /// <summary>

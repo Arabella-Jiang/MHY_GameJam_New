@@ -347,6 +347,14 @@ public class Player : MonoBehaviour
             else
             {
                 Debug.Log($"切换到特性: {property}");
+                
+                // 显示切换特性消息
+                string propertyName = GameLocalization.GetPropertyDisplayName(property);
+                if (GameMessageCatalog.TryGetMessageText("Global", "玩家切换特性选择", out string messageTemplate))
+                {
+                    string formattedMessage = string.Format(messageTemplate, propertyName);
+                    GameNotification.ShowRaw(formattedMessage);
+                }
             }
         }
     }

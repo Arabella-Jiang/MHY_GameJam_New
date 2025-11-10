@@ -103,6 +103,17 @@ public class GameManager : MonoBehaviour
         }
         else if (pauseMenuPanel != null)
         {
+            // 确保PauseMenu全屏显示
+            RectTransform pauseRect = pauseMenuPanel.GetComponent<RectTransform>();
+            if (pauseRect != null)
+            {
+                pauseRect.anchorMin = Vector2.zero;
+                pauseRect.anchorMax = Vector2.one;
+                pauseRect.sizeDelta = Vector2.zero;
+                pauseRect.anchoredPosition = Vector2.zero;
+                pauseRect.localScale = Vector3.one;
+            }
+            
             // 后备方案：直接显示pauseMenuPanel并绑定按钮
             pauseMenuPanel.SetActive(true);
             BindPauseMenuButtons();

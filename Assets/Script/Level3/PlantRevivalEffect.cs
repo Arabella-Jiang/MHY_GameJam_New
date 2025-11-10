@@ -10,10 +10,6 @@ public class PlantRevivalEffect : CombinationEffect
     public GameObject deadTree;                 // 枯死的植物（需要在Unity中手动指定）
     public GameObject treeLive;                 // 复活后的植物（需要在Unity中手动指定）
     
-    [Header("动画设置")]
-    public Animator waterAnimation;             // 浇灌动画（可选）
-    public string waterAnimationName = "WaterPlant"; // 浇灌动画名称
-    
     [Header("视觉效果")]
     public ParticleSystem revivalEffect;        // 复活特效
     public Light plantLight;                    // 植物光源（复活后点亮）
@@ -56,35 +52,53 @@ public class PlantRevivalEffect : CombinationEffect
     {
         if (isRevived) return;
 
-        // 播放浇灌动画
-        StartCoroutine(PlayWaterAnimation());
-
-        Debug.Log("✅ 开始播放浇灌动画，植物即将复苏！");
+        // 启动协程处理完整的动画序列
+        StartCoroutine(PlayWateringSequence());
     }
 
     /// <summary>
-    /// 播放浇灌动画
+    /// 播放完整的灌溉动画序列
     /// </summary>
-    private IEnumerator PlayWaterAnimation()
+    private IEnumerator PlayWateringSequence()
     {
-        // 播放浇灌动画（如果有）
-        if (waterAnimation != null && !string.IsNullOrEmpty(waterAnimationName))
+        // 先播放湖水汇入枯树过场动画，等待播放完成
+        if (CutsceneManager.Instance != null)
         {
-            waterAnimation.Play(waterAnimationName);
-            Debug.Log($"播放浇灌动画: {waterAnimationName}");
-            
-            // 等待动画播放完成
-            yield return new WaitForEndOfFrame(); // 等待一帧，确保动画开始播放
-            yield return new WaitUntil(() => 
-            {
-                AnimatorStateInfo stateInfo = waterAnimation.GetCurrentAnimatorStateInfo(0);
-                return stateInfo.IsName(waterAnimationName) && stateInfo.normalizedTime >= 1f;
+            bool waterFlowFinished = false;
+            CutsceneManager.Instance.PlayCutscene("WaterFlowToTree", () => {
+                waterFlowFinished = true;
             });
+            
+            // 等待过场动画播放完成
+            while (!waterFlowFinished)
+            {
+                yield return null;
+            }
         }
         else
         {
-            // 如果没有动画，等待一小段时间
-            yield return new WaitForSeconds(1f);
+            // 如果没有CutsceneManager，等待一小段时间
+            yield return new WaitForSeconds(2f);
+        }
+
+        // 播放枯树复活动画
+        if (CutsceneManager.Instance != null)
+        {
+            bool treeRevivalFinished = false;
+            CutsceneManager.Instance.PlayCutscene("TreeRevive", () => {
+                treeRevivalFinished = true;
+            });
+            
+            // 等待枯树复活动画播放完成
+            while (!treeRevivalFinished)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            // 如果没有CutsceneManager，等待一小段时间
+            yield return new WaitForSeconds(2f);
         }
 
         // 动画播放完成后，执行植物复活
@@ -100,6 +114,12 @@ public class PlantRevivalEffect : CombinationEffect
         if (revivalEffect != null)
         {
             revivalEffect.Play();
+        }
+
+        // 播放植物复苏音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayPlantRevivalSound();
         }
 
         // 点亮植物光源

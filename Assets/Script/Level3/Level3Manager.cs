@@ -41,14 +41,42 @@ public class Level3Manager : LevelManager
 
     private Step step = Step.Start;
     private bool transitionTriggered = false;
+    private bool levelCompleteTriggered = false; // 防止重复触发
 
     protected override void InitializeLevel()
     {
         base.InitializeLevel();
 
+        // 播放雪山背景音乐
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySnowMountainBGM();
+        }
+        
+        // 播放第三关出场动画，动画播放完成后再显示通知
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("Level3Entrance", () => {
+                // 动画播放完成后显示通知
+                ShowLevel3EntranceNotifications();
+            });
+        }
+        else
+        {
+            // 如果没有CutsceneManager，直接显示通知
+            ShowLevel3EntranceNotifications();
+        }
+        
+        step = Step.LearnProperties;
+    }
+
+    /// <summary>
+    /// 显示第三关开场通知
+    /// </summary>
+    private void ShowLevel3EntranceNotifications()
+    {
         GameNotification.ShowByTrigger("Level3", "开场：故事引导");
         GameNotification.ShowByTrigger("Level3", "开场：说明目标组件");
-        step = Step.LearnProperties;
     }
 
     void Update()
@@ -92,8 +120,9 @@ public class Level3Manager : LevelManager
 
             case Step.ChargeTablet:
                 // 检查是否所有组件都已充能完成
-                if (lifeCharged && starPointCharged && stoneTablet != null)
+                if (lifeCharged && starPointCharged && stoneTablet != null && !levelCompleteTriggered)
                 {
+                    levelCompleteTriggered = true;
                     // 触发石碑最终效果
                     CombinationEffect effect = stoneTablet.GetComponent<CombinationEffect>();
                     if (effect != null)
@@ -107,8 +136,9 @@ public class Level3Manager : LevelManager
                     
                     GameNotification.ShowByTrigger("Level3", "充能完成");
                     step = Step.Complete;
-                    TriggerCutscene("StarComplete");
-                    TriggerLevelComplete();
+                    
+                    // 启动协程处理延迟和过场动画
+                    StartCoroutine(HandleLevelComplete());
                 }
                 // 提示玩家充能进度
                 else if (hasLife || hasStarPoint)
@@ -158,6 +188,12 @@ public class Level3Manager : LevelManager
         lifeCharged = true;
         GameNotification.ShowByTrigger("Level3", "生组件充能成功");
         
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
+        
         // 点亮"生"文字部分
         if (tabletTextEffect != null)
         {
@@ -184,6 +220,12 @@ public class Level3Manager : LevelManager
         
         starPointCharged = true;
         GameNotification.ShowByTrigger("Level3", "星点组件充能成功");
+        
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
         
         // 点亮"星点"文字部分
         if (tabletTextEffect != null)
@@ -369,6 +411,12 @@ public class Level3Manager : LevelManager
         Debug.Log("✅ 使用冰锥凿开冰面！");
         Debug.Log($"TryBreakIceWithIceCone: 准备调用TriggerIceSurfaceTransformation，targetIceSurface: {targetIceSurface?.name}");
         
+        // 播放打磨冰块音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayRubWoodGrindIceSound();
+        }
+        
         // 触发冰面转换效果（两种方式都会触发植物灌溉）
         TriggerIceSurfaceTransformation(targetIceSurface);
         
@@ -473,36 +521,9 @@ public class Level3Manager : LevelManager
             
             iceSurfaceTransformed = true;
             Debug.Log("[TriggerIceSurfaceTransformation] ✅ 冰面转换状态已更新");
-
-            // 两种方式都会触发植物灌溉
-            if (deadPlant != null)
-            {
-                Debug.Log("[TriggerIceSurfaceTransformation] ✅ 开始触发植物灌溉协程");
-                StartCoroutine(TriggerPlantWateringAfterDelay());
-            }
-            else
-            {
-                Debug.LogError("[TriggerIceSurfaceTransformation] ❌ deadPlant is null，无法触发植物灌溉！请检查Level3Manager的deadPlant引用");
-            }
-        }
-    }
-
-    /// <summary>
-    /// 延迟触发植物灌溉（等待冰面转换动画完成）
-    /// </summary>
-    private IEnumerator TriggerPlantWateringAfterDelay()
-    {
-        // 等待冰面转换动画完成（假设2秒）
-        yield return new WaitForSeconds(2f);
-
-        // 触发植物灌溉
-        if (deadPlant != null)
-        {
-            Component plantRevival = deadPlant.GetComponent("PlantRevivalEffect");
-            if (plantRevival != null)
-            {
-                plantRevival.SendMessage("StartWateringAnimation", SendMessageOptions.DontRequireReceiver);
-            }
+            
+            // 注意：植物灌溉动画序列现在由 IceSurfaceEffect 直接处理
+            // IceBreak 播放完毕后会等待 1.5f，然后自动触发 PlantRevivalEffect.StartWateringAnimation()
         }
     }
 
@@ -513,7 +534,21 @@ public class Level3Manager : LevelManager
         if (transitionTriggered) return;
         transitionTriggered = true;
 
+        // 解锁鼠标，让玩家可以操作
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         ShowConclusionAndLoad("Level3", "结语", "MainMenu", returnToMainMenuDelay, "星星照应我们所处的位置在宇宙的何方，知道脚下在哪里，才明白未来何去何从。");
+    }
+
+    /// <summary>
+    /// 处理关卡完成的协程
+    /// </summary>
+    private System.Collections.IEnumerator HandleLevelComplete()
+    {
+        yield return new WaitForSeconds(1.5f);
+        TriggerLevelComplete();
+       
     }
 }
 

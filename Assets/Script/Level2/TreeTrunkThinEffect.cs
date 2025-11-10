@@ -165,6 +165,12 @@ public class TreeTrunkThinEffect : CombinationEffect
             isMonitoringNest = true;
             StartCoroutine(MonitorNestLanding());
 
+            // 播放鸟巢掉落音效
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlayBirdNestDropSound();
+            }
+
             Debug.Log("鸟巢掉落！");
         }
     }

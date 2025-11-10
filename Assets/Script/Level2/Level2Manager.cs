@@ -39,11 +39,40 @@ public class Level2Manager : LevelManager
     private Step step = Step.Start;
     private bool hasShownVinePropertyHint = false; // 是否已经显示过老藤特性提示
     private bool transitionTriggered = false;
+    private bool levelCompleteTriggered = false; // 防止重复触发
 
     protected override void InitializeLevel()
     {
         base.InitializeLevel();
 
+        // 播放森林背景音乐
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayForestBGM();
+        }
+        
+        // 播放第二关出场动画，动画播放完成后再显示通知
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("Level2Entrance", () => {
+                // 动画播放完成后显示通知
+                ShowLevel2EntranceNotifications();
+            });
+        }
+        else
+        {
+            // 如果没有CutsceneManager，直接显示通知
+            ShowLevel2EntranceNotifications();
+        }
+        
+        step = Step.LearnVineProperties;
+    }
+
+    /// <summary>
+    /// 显示第二关开场通知
+    /// </summary>
+    private void ShowLevel2EntranceNotifications()
+    {
         // 检查是否有跟随光源（Fire_Light）- 这是从上一关继承的"日"组件
         if (player != null)
         {
@@ -65,7 +94,6 @@ public class Level2Manager : LevelManager
         {
             GameNotification.ShowByTrigger("Level2", "开场石碑信息");
         }
-        step = Step.LearnVineProperties;
     }
 
     void Update()
@@ -137,8 +165,9 @@ public class Level2Manager : LevelManager
 
             case Step.ChargeTablet:
                 // 检查是否所有组件都已充能完成
-                if (featherCharged && woodCharged && sunCharged && stoneTablet != null)
+                if (featherCharged && woodCharged && sunCharged && stoneTablet != null && !levelCompleteTriggered)
                 {
+                    levelCompleteTriggered = true;
                     // 触发石碑最终效果
                     SpringTabletEffect effect = stoneTablet.GetComponent<SpringTabletEffect>();
                     if (effect != null)
@@ -148,8 +177,9 @@ public class Level2Manager : LevelManager
                     
                     GameNotification.ShowByTrigger("Level2", "三个组件全部充能完成");
                     step = Step.Complete;
-                    TriggerCutscene("SpringComplete");
-                    TriggerLevelComplete();
+                    
+                    // 启动协程处理延迟和过场动画
+                    StartCoroutine(HandleLevelComplete());
                 }
                 // 提示玩家充能进度
                 else if (hasFeather || hasWood || hasSun)
@@ -178,6 +208,12 @@ public class Level2Manager : LevelManager
     {
         hasFeather = true;
         GameNotification.ShowByTrigger("Level2", "拾取羽毛时");
+        
+        // 播放拿羽毛过场动画
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("GetFeather");
+        }
     }
 
     public void OnWoodObtained()
@@ -206,6 +242,12 @@ public class Level2Manager : LevelManager
         featherCharged = true;
         GameNotification.ShowByTrigger("Level2", "羽毛充能成功");
         
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
+        
         // 点亮"羽"文字部分
         if (tabletTextEffect != null)
         {
@@ -233,6 +275,12 @@ public class Level2Manager : LevelManager
         
         woodCharged = true;
         GameNotification.ShowByTrigger("Level2", "木组件充能成功");
+        
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
         
         // 点亮"木"文字部分
         if (tabletTextEffect != null)
@@ -266,6 +314,12 @@ public class Level2Manager : LevelManager
         
         sunCharged = true;
         GameNotification.ShowByTrigger("Level2", "日组件充能成功");
+        
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
         
         // 点亮"日"文字部分
         if (tabletTextEffect != null)
@@ -419,6 +473,19 @@ public class Level2Manager : LevelManager
         transitionTriggered = true;
 
         ShowConclusionAndLoad("Level2", "结语", "Level3", returnToLevel3Delay, "春的意义，即是唤醒世界上一切律动的能力。");
+    }
+
+    /// <summary>
+    /// 处理关卡完成的协程（延迟后播放过场动画）
+    /// </summary>
+    private System.Collections.IEnumerator HandleLevelComplete()
+    {
+        yield return new WaitForSeconds(1.5f);
+        
+        // 动画播放完成后，再显示结语界面
+        TriggerCutscene("SpringComplete", () => {
+            TriggerLevelComplete();
+        });
     }
 }
 

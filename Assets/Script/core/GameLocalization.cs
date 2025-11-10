@@ -15,7 +15,7 @@ public static class GameLocalization
         { ObjectProperty.Soft, "柔软" },
         { ObjectProperty.Flexible, "柔韧" },
         { ObjectProperty.Flammable, "可燃" },
-        { ObjectProperty.Long, "修长" },
+        { ObjectProperty.Long, "变高" },
         { ObjectProperty.Thin, "细长" },
         { ObjectProperty.Light, "光芒" },
         { ObjectProperty.Heavy, "沉重" },

@@ -274,6 +274,18 @@ public class WaterHardEffect : CombinationEffect
         // 保持原有的transform位置设置
         //this.transform.localPosition = new Vector3(0.000000086511f, 0.58f, 0);
 
+        // 播放冻结音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayFreezeIceBreakSound();
+        }
+
+        // 触发湖水冻结过场动画
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("WaterFreeze");
+        }
+
         GameNotification.ShowByTrigger("Level1", "水面硬化成功");
         Debug.Log($"✅ {successMessage}");
     }

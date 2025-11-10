@@ -37,6 +37,12 @@ public class StoneTransparentEffect : CombinationEffect
 
         effectTriggered = true;
 
+        // 播放第二个星空折射过场动画（石头变透明时）
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("SecondStarRefraction");
+        }
+
         // 改变石头材质为透明/反射材质
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null)

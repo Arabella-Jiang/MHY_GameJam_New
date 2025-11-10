@@ -167,6 +167,61 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &102092681
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102092683}
+  - component: {fileID: 102092682}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &102092682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102092681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608a20fbb6dfb4b069bae251a1793bf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  empowerSound: {fileID: 8300000, guid: 0f502548a11694506845218d13c29475, type: 3}
+  rubWoodGrindIceSound: {fileID: 8300000, guid: 3ee9bb2ed2ce744668d6ba4aaf235157, type: 3}
+  birdNestDropSound: {fileID: 8300000, guid: b9bdc28ed6e78476faf0083a2110df44, type: 3}
+  freezeIceBreakSound: {fileID: 8300000, guid: 02ada218590a140dbb5838b6dbc033ba, type: 3}
+  plantRevivalSound: {fileID: 8300000, guid: c16d6c00a99a047b1829a73ca973d641, type: 3}
+  tabletChargeSound: {fileID: 8300000, guid: a1dcf7bca25644adc926b6b6fe2f5a2e, type: 3}
+  fireBurnSound: {fileID: 8300000, guid: e0b089802d0184b05942384638fbe7cf, type: 3}
+  forestBGM: {fileID: 8300000, guid: e0e80207b28804a1e9209bbe7e8c48a6, type: 3}
+  snowMountainBGM: {fileID: 8300000, guid: 9e2b285fd71594e03afca74afad82920, type: 3}
+  sfxSource: {fileID: 0}
+  bgmSource: {fileID: 0}
+--- !u!4 &102092683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102092681}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 834.16614, y: 626.6078, z: 436.87512}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &115351225
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,7 +571,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4034865158976913486, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.981214
+      value: 1.2404691
       objectReference: {fileID: 0}
     - target: {fileID: 4034865158976913486, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
       propertyPath: m_LocalScale.y
@@ -533,6 +588,10 @@ PrefabInstance:
     - target: {fileID: 4950899780872120416, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 4972442219283071281, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5460170646749616692, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -575,6 +634,119 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 040e57c5e37904cc3bc488b1462283d2, type: 3}
+--- !u!1001 &469457862699219772
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 782.43805
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 743.5016
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 255.87213
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 461317450509198720, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2289422925375195104, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: m_Name
+      value: CutsceneManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level2_Entrance
+      value: 
+      objectReference: {fileID: 32900000, guid: 39c404d93c07d49b78298b16869abdd4, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_Entrance
+      value: 
+      objectReference: {fileID: 32900000, guid: be314948494bd43cc809c47fc9b8bcdb, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_IceBreak
+      value: 
+      objectReference: {fileID: 32900000, guid: 6509acb6c79bb4dbba16127e186987ed, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_SnowToIce
+      value: 
+      objectReference: {fileID: 32900000, guid: 54bdc3a8aceaf4124bb4727c77feb801, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level1_FireIgnite
+      value: 
+      objectReference: {fileID: 32900000, guid: 3e7d6e33485e7428d9e3be2f7dc35f89, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level2_GetFeather
+      value: 
+      objectReference: {fileID: 32900000, guid: 259fd37a54bd24ed282adc3f322e62dc, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_TreeRevive
+      value: 
+      objectReference: {fileID: 32900000, guid: 72032d4f6dafb4fe0950ff9dfbb626c2, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level1_WaterFreeze
+      value: 
+      objectReference: {fileID: 32900000, guid: 8813cc975f37a4060a4efe4287f0e5b0, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level2_FlowersGrow
+      value: 
+      objectReference: {fileID: 32900000, guid: 84b1c722a2848408c9096bc76aeb54fe, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level1_LightConverge
+      value: 
+      objectReference: {fileID: 32900000, guid: ee2835ae7db3140b485f7f0227f42a8b, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level1_PlayerLanding
+      value: 
+      objectReference: {fileID: 32900000, guid: e6a066397f3694264893d002d84cbc15, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_StarRefraction
+      value: 
+      objectReference: {fileID: 32900000, guid: 35679de3abd72443da5d1f9a0a3d5bea, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_WaterFlowToTree
+      value: 
+      objectReference: {fileID: 32900000, guid: 4c1a65e604cb44639a7187fd7483673c, type: 3}
+    - target: {fileID: 6696060784624817012, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
+      propertyPath: level3_SecondStarRefraction
+      value: 
+      objectReference: {fileID: 32900000, guid: 5af97b91d981946faa3b9435e03eb717, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cbc6af3d0e40846fea1bfd9e3409c172, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -584,3 +756,5 @@ SceneRoots:
   - {fileID: 738309370}
   - {fileID: 42357715}
   - {fileID: 1923148098}
+  - {fileID: 102092683}
+  - {fileID: 469457862699219772}

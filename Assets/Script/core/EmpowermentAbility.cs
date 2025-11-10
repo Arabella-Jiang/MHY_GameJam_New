@@ -39,6 +39,13 @@ public class EmpowermentAbility : MonoBehaviour
         }
 
         ObjectProperty selectedProperty = understandableProperties[selectedPropertyIndex];
+        
+        // 播放赋能音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayEmpowerSound();
+        }
+        
         AddPropertyToSlot(selectedProperty);
     }
 

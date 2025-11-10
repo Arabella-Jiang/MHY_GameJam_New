@@ -37,6 +37,12 @@ public class SnowMirrorEffect : CombinationEffect
 
         effectTriggered = true;
 
+        // 播放第一个星空折射过场动画（雪面变成镜面时）
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("StarRefraction");
+        }
+
         // 改变雪面材质为镜面
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null)

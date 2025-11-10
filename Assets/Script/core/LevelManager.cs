@@ -57,9 +57,38 @@ public abstract class LevelManager : MonoBehaviour
         Debug.Log($"UI提示: {message}");
     }
     
-    public virtual void TriggerCutscene(string cutsceneName)
+    public virtual void TriggerCutscene(string cutsceneName, System.Action onComplete = null)
     {
-        Debug.Log($"播放过场动画: {cutsceneName}");
+        Debug.Log($"[LevelManager] TriggerCutscene被调用: '{cutsceneName}'");
+        Debug.Log($"[LevelManager] CutsceneManager.Instance: {(CutsceneManager.Instance != null ? "存在" : "NULL")}");
+        
+        // 如果Instance为null，尝试从场景中查找或创建
+        if (CutsceneManager.Instance == null)
+        {
+            Debug.LogWarning("[LevelManager] CutsceneManager.Instance为NULL，尝试查找场景中的CutsceneManager...");
+            CutsceneManager existing = FindObjectOfType<CutsceneManager>();
+            if (existing != null)
+            {
+                Debug.Log("[LevelManager] 在场景中找到CutsceneManager，但Instance未设置");
+            }
+            else
+            {
+                Debug.LogWarning("[LevelManager] 场景中未找到CutsceneManager，请确保CutsceneManager prefab在MainMenu场景中");
+            }
+        }
+        
+        if (CutsceneManager.Instance != null)
+        {
+            Debug.Log($"[LevelManager] 调用CutsceneManager.PlayCutscene('{cutsceneName}')");
+            CutsceneManager.Instance.PlayCutscene(cutsceneName, onComplete);
+        }
+        else
+        {
+            Debug.LogWarning($"[LevelManager] CutsceneManager未找到，无法播放过场动画 '{cutsceneName}'");
+            Debug.LogWarning($"[LevelManager] 请确保CutsceneManager prefab在MainMenu场景中");
+            // 如果没有CutsceneManager，直接调用回调
+            onComplete?.Invoke();
+        }
     }
 
     /// <summary>

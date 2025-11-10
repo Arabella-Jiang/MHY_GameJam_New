@@ -16,10 +16,6 @@ public class IceSurfaceEffect : CombinationEffect
     public Animator iceAnimation;                 // 冰面动画（可选）
     public string animationName = "IceTransform"; // 动画名称
 
-    [Header("视觉效果")]
-    public ParticleSystem transformEffect;        // 转换特效
-    public AudioClip transformSound;              // 转换音效（可选）
-
     private bool isTransformed = false;           // 是否已经转换
 
     void Start()
@@ -41,57 +37,16 @@ public class IceSurfaceEffect : CombinationEffect
 
         isTransformed = true;
         Debug.Log("✅ 冰面开始转换！");
-
-        // 播放转换动画
-        StartCoroutine(PlayTransformationAnimation());
+        
+        // 执行转换效果（使用协程处理动画序列）
+        StartCoroutine(PerformTransformationSequence());
     }
 
     /// <summary>
-    /// 播放转换动画
+    /// 执行转换效果序列（协程）
     /// </summary>
-    private IEnumerator PlayTransformationAnimation()
+    private IEnumerator PerformTransformationSequence()
     {
-        // 播放动画（如果有）
-        if (iceAnimation != null && !string.IsNullOrEmpty(animationName))
-        {
-            iceAnimation.Play(animationName);
-            Debug.Log($"播放转换动画: {animationName}");
-            
-            // 等待动画播放完成
-            yield return new WaitForEndOfFrame();
-            yield return new WaitUntil(() => 
-            {
-                AnimatorStateInfo stateInfo = iceAnimation.GetCurrentAnimatorStateInfo(0);
-                return stateInfo.IsName(animationName) && stateInfo.normalizedTime >= 1f;
-            });
-        }
-        else
-        {
-            // 如果没有动画，等待一小段时间
-            yield return new WaitForSeconds(1f);
-        }
-
-        // 动画播放完成后，执行转换效果
-        PerformTransformation();
-    }
-
-    /// <summary>
-    /// 执行转换效果
-    /// </summary>
-    private void PerformTransformation()
-    {
-        // 播放转换特效
-        if (transformEffect != null)
-        {
-            transformEffect.Play();
-        }
-
-        // 播放转换音效
-        if (transformSound != null)
-        {
-            AudioSource.PlayClipAtPoint(transformSound, transform.position);
-        }
-
         // 替换材质
         if (targetMaterial != null)
         {
@@ -100,8 +55,51 @@ public class IceSurfaceEffect : CombinationEffect
 
         // 禁用碰撞体（让玩家可以下沉到水中）
         DisableColliders();
+        
+        // 播放冰面裂开过场动画，等待播放完成
+        if (CutsceneManager.Instance != null)
+        {
+            bool iceBreakFinished = false;
+            CutsceneManager.Instance.PlayCutscene("IceBreak", () => {
+                iceBreakFinished = true;
+            });
+            
+            // 等待 IceBreak 动画播放完成
+            while (!iceBreakFinished)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            // 如果没有CutsceneManager，等待一小段时间
+            yield return new WaitForSeconds(2f);
+        }
 
         Debug.Log("✅ 冰面已转换！");
+
+        // 等待 1.5 秒
+        yield return new WaitForSeconds(1.5f);
+
+        // 触发植物灌溉动画序列
+        Level3Manager level3Manager = FindObjectOfType<Level3Manager>();
+        if (level3Manager != null && level3Manager.deadPlant != null)
+        {
+            PlantRevivalEffect plantRevival = level3Manager.deadPlant.GetComponent<PlantRevivalEffect>();
+            if (plantRevival != null)
+            {
+                Debug.Log("✅ 开始触发植物灌溉动画序列");
+                plantRevival.StartWateringAnimation();
+            }
+            else
+            {
+                Debug.LogWarning("IceSurfaceEffect: 未找到 PlantRevivalEffect 组件");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("IceSurfaceEffect: 未找到 Level3Manager 或 deadPlant 引用");
+        }
     }
 
     /// <summary>

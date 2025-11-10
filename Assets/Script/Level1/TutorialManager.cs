@@ -32,11 +32,32 @@ public class TutorialManager : MonoBehaviour
     private bool stoneHintShown = false;
     private bool stoneMessageShown = false;
     private bool transitionTriggered = false;
+    private bool levelCompleteTriggered = false; // 防止重复触发
 
     void Start()
     {
         if (player == null) player = FindObjectOfType<Player>();
         if (empowerment == null && player != null) empowerment = player.empowermentAbility;
+        
+        // 播放森林背景音乐
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayForestBGM();
+        }
+        
+        // 播放玩家降落过场动画，动画播放完成后再显示通知
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("PlayerLanding", () => {
+                // 动画播放完成后显示通知
+                ShowLevel1EntranceNotifications();
+            });
+        }
+        else
+        {
+            // 如果没有CutsceneManager，直接显示通知
+            ShowLevel1EntranceNotifications();
+        }
         
         // 自动查找 StoneTableEffect（如果没有手动指定）
         if (tabletTextEffect == null && stoneTablet != null)
@@ -57,12 +78,17 @@ public class TutorialManager : MonoBehaviour
         if (player == null) Debug.LogWarning("TutorialManager: player 引用为空！");
         if (empowerment == null) Debug.LogWarning("TutorialManager: empowerment 引用为空！");
 
+        step = Step.LearnHard;
+    }
+
+    /// <summary>
+    /// 显示第一关开场通知
+    /// </summary>
+    private void ShowLevel1EntranceNotifications()
+    {
         ShowLevelMessage("夜幕将临");
         ShowLevelMessage("石碑说明");
         ShowLevelMessage("石碑指引");
-
-
-        step = Step.LearnHard;
     }
 
     void Update()
@@ -163,11 +189,12 @@ public class TutorialManager : MonoBehaviour
                 }
                 
                 // 检查是否全部完成
-                if (fireCharged && humanCharged)
+                if (fireCharged && humanCharged && !levelCompleteTriggered)
                 {
+                    levelCompleteTriggered = true;
                     ShowLevelMessage("所有文字点亮");
-                    TriggerLevelComplete();
-                    step = Step.Complete;
+                    // 启动协程处理延迟和过场动画
+                    StartCoroutine(HandleLevelComplete());
                 }
                 break;
 
@@ -222,6 +249,12 @@ public class TutorialManager : MonoBehaviour
 
         fireCharged = true;
         ShowLevelMessage("‘火’文字点亮");
+        
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
 
         // 点亮Fire文字
         if (tabletTextEffect != null)
@@ -247,6 +280,12 @@ public class TutorialManager : MonoBehaviour
 
         humanCharged = true;
         ShowLevelMessage("‘人’文字点亮");
+        
+        // 播放石碑点亮音效
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayTabletChargeSound();
+        }
 
         // 点亮Human文字
         if (tabletTextEffect != null)
@@ -291,6 +330,30 @@ public class TutorialManager : MonoBehaviour
         GameNotification.ShowByTrigger("Level1", "跳转下一关");
         
         LevelManager.ShowConclusionAndLoadStatic("Level1", "结语", "Level2", 1.8f, "石碑两个文字部分都已点亮！教程完成！");
+    }
+
+    /// <summary>
+    /// 处理关卡完成的协程（延迟后播放过场动画）
+    /// </summary>
+    private System.Collections.IEnumerator HandleLevelComplete()
+    {
+        step = Step.Complete;
+        
+        yield return new WaitForSeconds(1.5f);
+        
+        // 触发光芒汇聚到主角身上的过场动画（石碑点亮时）
+        // 动画播放完成后，再显示结语界面
+        if (CutsceneManager.Instance != null)
+        {
+            CutsceneManager.Instance.PlayCutscene("LightConverge", () => {
+                TriggerLevelComplete();
+            });
+        }
+        else
+        {
+            // 如果没有CutsceneManager，直接显示结语
+            TriggerLevelComplete();
+        }
     }
 
     private bool IsPlayerFacing(Transform target)
